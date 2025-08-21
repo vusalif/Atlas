@@ -1,0 +1,959 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Country Guesser - Duel Mode</title>
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+  <style>
+    :root {
+      --bg: #000000;
+      --fg: #ffffff;
+      --accent: #ffffff;
+      --danger: #ffffff;
+      --player1-color: #ffffff;
+      --player2-color: #ffffff;
+      --border: #333333;
+      --panel: #111111;
+    }
+    
+    html, body {
+      height: 100%;
+      margin: 0;
+      padding: 0;
+      overflow: hidden;
+    }
+    
+    body {
+      background: var(--bg);
+      color: var(--fg);
+      font-family: Roboto, sans-serif;
+      font-size: 14px;
+    }
+    
+    #app {
+      height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+    
+    .header {
+      background: var(--panel);
+      padding: 20px;
+      text-align: center;
+      border-bottom: 1px solid var(--border);
+    }
+    
+    .header .timer {
+      margin: 0;
+      font-size: 32px;
+      font-weight: normal;
+      font-family: 'Courier New', monospace;
+      color: var(--accent);
+    }
+    
+    .game-container {
+      flex: 1;
+      display: flex;
+    }
+    
+    .map-container {
+      flex: 1;
+      position: relative;
+    }
+    
+    .map-container.left {
+      border-right: 1px solid var(--border);
+    }
+    
+    .map {
+      height: 100%;
+      width: 100%;
+    }
+    
+    .player-overlay {
+      position: absolute;
+      top: 20px;
+      left: 20px;
+      background: var(--panel);
+      border: 1px solid var(--border);
+      padding: 15px;
+      z-index: 1000;
+      min-width: 180px;
+    }
+    
+    .player-overlay.player1 {
+      border-left: 3px solid var(--player1-color);
+    }
+    
+    .player-overlay.player2 {
+      border-left: 3px solid var(--player2-color);
+    }
+    
+    .player-name {
+      font-weight: normal;
+      margin-bottom: 10px;
+      text-align: left;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      font-size: 12px;
+    }
+    
+    .player1 .player-name {
+      color: var(--player1-color);
+    }
+    
+    .player2 .player-name {
+      color: var(--player2-color);
+    }
+    
+    .player-score {
+      font-size: 24px;
+      font-weight: normal;
+      margin-bottom: 10px;
+      font-family: 'Courier New', monospace;
+    }
+    
+    .player-target {
+      font-size: 11px;
+      color: #cccccc;
+      text-align: left;
+      min-height: 16px;
+      border-top: 1px solid var(--border);
+      padding-top: 10px;
+    }
+    
+    .controls-info {
+      position: absolute;
+      bottom: 20px;
+      left: 20px;
+      background: var(--panel);
+      border: 1px solid var(--border);
+      padding: 15px;
+      font-size: 10px;
+      z-index: 1000;
+      max-width: 140px;
+    }
+    
+    .controls-info h4 {
+      margin: 0 0 10px 0;
+      font-size: 11px;
+      color: var(--accent);
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      font-weight: normal;
+    }
+    
+    .controls-info .control {
+      margin: 3px 0;
+      font-size: 10px;
+      font-family: 'Courier New', monospace;
+    }
+    
+    .timer {
+      font-size: 32px;
+      font-weight: normal;
+      color: var(--accent);
+      font-family: 'Courier New', monospace;
+    }
+    
+    .timer.warning {
+      color: #ffffff;
+    }
+    
+    .timer.danger {
+      color: #ffffff;
+    }
+    
+    .game-controls {
+      position: absolute;
+      bottom: 20px;
+      right: 20px;
+      z-index: 1000;
+    }
+    
+    .control-btn {
+      background: var(--panel);
+      color: var(--fg);
+      border: 1px solid var(--border);
+      padding: 10px 20px;
+      cursor: pointer;
+      font-size: 12px;
+      font-weight: normal;
+      margin-left: 10px;
+      font-family: 'Courier New', monospace;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+    }
+    
+    .control-btn:hover {
+      background: var(--border);
+    }
+    
+    .toast {
+      position: fixed;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      background: var(--panel);
+      border: 1px solid var(--border);
+      padding: 20px;
+      z-index: 2000;
+      display: none;
+      text-align: center;
+      max-width: 300px;
+      font-family: 'Courier New', monospace;
+    }
+    
+    .toast.ok {
+      border-left: 3px solid var(--accent);
+    }
+    
+    .toast.err {
+      border-left: 3px solid var(--danger);
+    }
+    
+    .game-over-modal {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0, 0, 0, 0.9);
+      z-index: 3000;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    
+    .game-over-content {
+      background: var(--panel);
+      border: 1px solid var(--border);
+      max-width: 500px;
+      width: 90%;
+      text-align: center;
+      padding: 40px;
+    }
+    
+    .game-over-header h3 {
+      margin: 0 0 30px 0;
+      font-size: 24px;
+      font-weight: normal;
+      text-transform: uppercase;
+      letter-spacing: 2px;
+    }
+    
+    .winner-announcement {
+      font-size: 16px;
+      color: var(--accent);
+      font-weight: normal;
+      margin-bottom: 30px;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+    }
+    
+    .final-scores {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 30px;
+      margin-bottom: 30px;
+    }
+    
+    .final-score-card {
+      padding: 20px;
+      border: 1px solid var(--border);
+    }
+    
+    .final-score-card.player1 {
+      border-left: 3px solid var(--player1-color);
+    }
+    
+    .final-score-card.player2 {
+      border-left: 3px solid var(--player2-color);
+    }
+    
+    .final-score-name {
+      font-weight: normal;
+      margin-bottom: 15px;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      font-size: 12px;
+    }
+    
+    .final-score-value {
+      font-size: 32px;
+      font-weight: normal;
+      font-family: 'Courier New', monospace;
+    }
+    
+    .player1 .final-score-name,
+    .player1 .final-score-value {
+      color: var(--player1-color);
+    }
+    
+    .player2 .final-score-name,
+    .player2 .final-score-value {
+      color: var(--player2-color);
+    }
+    
+    .play-again-btn {
+      background: var(--panel);
+      color: var(--fg);
+      border: 1px solid var(--border);
+      padding: 15px 30px;
+      font-size: 14px;
+      font-weight: normal;
+      cursor: pointer;
+      font-family: 'Courier New', monospace;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+    }
+    
+    .play-again-btn:hover {
+      background: var(--border);
+    }
+    
+    @media (max-width: 768px) {
+      .game-container {
+        flex-direction: column;
+      }
+      
+      .map-container.left {
+        border-right: none;
+        border-bottom: 1px solid var(--border);
+      }
+      
+      .map-container.right {
+        border-left: none;
+        border-top: 1px solid var(--border);
+      }
+    }
+  </style>
+</head>
+<body>
+  <div id="app">
+    <div class="header">
+      <div id="timer" class="timer">02:00</div>
+    </div>
+    
+    <div class="game-container">
+      <!-- Player 1 Map (Left) -->
+      <div class="map-container left">
+        <div id="map1" class="map"></div>
+        
+        <div class="player-overlay player1">
+          <div class="player-name">Player 1</div>
+          <div id="player1Score" class="player-score">0</div>
+          <div id="player1Target" class="player-target">Waiting...</div>
+        </div>
+        
+        <div class="controls-info">
+          <h4>Controls</h4>
+          <div class="control">W - Move Up</div>
+          <div class="control">A - Move Left</div>
+          <div class="control">S - Move Down</div>
+          <div class="control">D - Move Right</div>
+          <div class="control">SPACE - Guess</div>
+          <div class="control">Q - Skip Country</div>
+        </div>
+      </div>
+      
+      <!-- Player 2 Map (Right) -->
+      <div class="map-container right">
+        <div id="map2" class="map"></div>
+        
+        <div class="player-overlay player2">
+          <div class="player-name">Player 2</div>
+          <div id="player2Score" class="player-score">0</div>
+          <div id="player2Target" class="player-target">Waiting...</div>
+        </div>
+        
+        <div class="controls-info">
+          <h4>Controls</h4>
+          <div class="control">↑ - Move Up</div>
+          <div class="control">← - Move Left</div>
+          <div class="control">↓ - Move Down</div>
+          <div class="control">→ - Move Right</div>
+          <div class="control">ENTER - Guess</div>
+          <div class="control">SHIFT - Skip Country</div>
+        </div>
+      </div>
+    </div>
+    
+
+    
+    <!-- Game Controls -->
+    <div class="game-controls">
+      <button id="startBtn" class="control-btn">Start Game</button>
+      <button id="resetBtn" class="control-btn" style="display: none;">Reset</button>
+    </div>
+    
+    <!-- Toast Messages -->
+    <div id="toast" class="toast"></div>
+    
+    <!-- Game Over Modal -->
+    <div id="gameOverModal" class="game-over-modal" style="display: none;">
+      <div class="game-over-content">
+        <div class="game-over-header">
+          <h3>Game Complete!</h3>
+          <div id="winnerAnnouncement" class="winner-announcement">Player 1 Wins!</div>
+        </div>
+        <div class="final-scores">
+          <div class="final-score-card player1">
+            <div class="final-score-name">Player 1</div>
+            <div id="finalScore1" class="final-score-value">0</div>
+          </div>
+          <div class="final-score-card player2">
+            <div class="final-score-name">Player 2</div>
+            <div id="finalScore2" class="final-score-value">0</div>
+          </div>
+        </div>
+        <button id="playAgainBtn" class="play-again-btn">Play Again</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+  <script>
+    // Game state
+    const state = {
+      isGameActive: false,
+      timeLeft: 120,
+      timerInterval: null,
+      player1Score: 0,
+      player2Score: 0,
+      player1Target: null,
+      player2Target: null,
+      completedCountries: new Set(),
+      features: [],
+      player1Countries: [],
+      player2Countries: [],
+      cursor1: { lat: 20, lng: 0 },
+      cursor2: { lat: 20, lng: 0 },
+      cursorMarkers: { player1: null, player2: null }
+    };
+
+    // Maps
+    let map1, map2;
+    
+    // Initialize maps
+    function initMaps() {
+      // Player 1 map (left)
+      map1 = L.map('map1', {
+        worldCopyJump: true,
+        zoomSnap: 0.5,
+        zoomDelta: 0.5,
+        dragging: false,
+        zoomControl: false,
+        scrollWheelZoom: false,
+        doubleClickZoom: false,
+        boxZoom: false,
+        keyboard: false
+      }).setView([20, 0], 2);
+      
+      // Player 2 map (right)
+      map2 = L.map('map2', {
+        worldCopyJump: true,
+        zoomSnap: 0.5,
+        zoomDelta: 0.5,
+        dragging: false,
+        zoomControl: false,
+        scrollWheelZoom: false,
+        doubleClickZoom: false,
+        boxZoom: false,
+        keyboard: false
+      }).setView([20, 0], 2);
+      
+      // Add tile layers
+      const tileLayer1 = L.tileLayer('https://{s}.basemaps.cartocdn.com/light_nolabels/{z}/{x}/{y}{r}.png', {
+        maxZoom: 6,
+        minZoom: 2,
+        attribution: '&copy; OpenStreetMap & Carto',
+        subdomains: 'abcd'
+      }).addTo(map1);
+      
+      const tileLayer2 = L.tileLayer('https://{s}.basemaps.cartocdn.com/light_nolabels/{z}/{x}/{y}{r}.png', {
+        maxZoom: 6,
+        minZoom: 2,
+        attribution: '&copy; OpenStreetMap & Carto',
+        subdomains: 'abcd'
+      }).addTo(map2);
+      
+      // Add cursor markers
+      state.cursorMarkers.player1 = L.marker(state.cursor1, {
+        icon: L.divIcon({
+          className: 'cursor-marker player1',
+          html: '<div style="background: #ef4444; width: 20px; height: 20px; border-radius: 50%; border: 3px solid white; box-shadow: 0 0 10px rgba(0,0,0,0.5);"></div>',
+          iconSize: [20, 20]
+        })
+      }).addTo(map1);
+      
+      state.cursorMarkers.player2 = L.marker(state.cursor2, {
+        icon: L.divIcon({
+          className: 'cursor-marker player2',
+          html: '<div style="background: #3b82f6; width: 20px; height: 20px; border-radius: 50%; border: 3px solid white; box-shadow: 0 0 10px rgba(0,0,0,0.5);"></div>',
+          iconSize: [20, 20]
+        })
+      }).addTo(map2);
+    }
+    
+    // Load countries data
+    async function loadCountries() {
+      try {
+        const response = await fetch('./countries.geojson');
+        const data = await response.json();
+        state.features = data.features.filter(f => {
+          const name = f.properties.name;
+          return name && name !== 'Antarctica';
+        });
+        
+        // Assign countries to players
+        const shuffled = [...state.features].sort(() => Math.random() - 0.5);
+        const half = Math.floor(shuffled.length / 2);
+        state.player1Countries = shuffled.slice(0, half);
+        state.player2Countries = shuffled.slice(half);
+        
+        console.log(`Loaded ${state.features.length} countries`);
+        console.log(`Player 1: ${state.player1Countries.length} countries`);
+        console.log(`Player 2: ${state.player2Countries.length} countries`);
+        
+        // Set initial targets
+        setPlayerTargets();
+        
+      } catch (error) {
+        console.error('Failed to load countries:', error);
+        toast('Failed to load countries data', 'err');
+      }
+    }
+    
+    // Set player targets
+    function setPlayerTargets() {
+      if (state.player1Countries.length > 0) {
+        const randomIndex = Math.floor(Math.random() * state.player1Countries.length);
+        state.player1Target = state.player1Countries[randomIndex];
+        document.getElementById('player1Target').textContent = state.player1Target.properties.name;
+      }
+      
+      if (state.player2Countries.length > 0) {
+        const randomIndex = Math.floor(Math.random() * state.player2Countries.length);
+        state.player2Target = state.player2Countries[randomIndex];
+        document.getElementById('player2Target').textContent = state.player2Target.properties.name;
+      }
+    }
+    
+    // Start game
+    function startGame() {
+      if (state.isGameActive) return;
+      
+      state.isGameActive = true;
+      state.timeLeft = 120;
+      state.player1Score = 0;
+      state.player2Score = 0;
+      state.completedCountries.clear();
+      
+      document.getElementById('startBtn').style.display = 'none';
+      document.getElementById('resetBtn').style.display = 'inline-block';
+      
+      // Reset cursor positions
+      state.cursor1 = { lat: 20, lng: 0 };
+      state.cursor2 = { lat: 20, lng: 0 };
+      updateCursorMarkers();
+      
+      // Set initial targets
+      setPlayerTargets();
+      
+      // Start timer
+      startTimer();
+      
+      toast('Game started! Find your target countries!', 'ok');
+    }
+    
+    // Start timer
+    function startTimer() {
+      if (state.timerInterval) clearInterval(state.timerInterval);
+      
+      state.timerInterval = setInterval(() => {
+        state.timeLeft--;
+        updateTimerDisplay();
+        
+        if (state.timeLeft <= 0) {
+          endGame();
+        }
+      }, 1000);
+    }
+    
+    // Update timer display
+    function updateTimerDisplay() {
+      const minutes = Math.floor(state.timeLeft / 60);
+      const seconds = state.timeLeft % 60;
+      const timerElement = document.getElementById('timer');
+      timerElement.textContent = `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+      
+      // Visual feedback
+      timerElement.className = 'timer';
+      if (state.timeLeft <= 10) {
+        timerElement.classList.add('danger');
+      } else if (state.timeLeft <= 30) {
+        timerElement.classList.add('warning');
+      }
+    }
+    
+    // Update cursor markers
+    function updateCursorMarkers() {
+      state.cursorMarkers.player1.setLatLng(state.cursor1);
+      state.cursorMarkers.player2.setLatLng(state.cursor2);
+    }
+    
+    // Move cursor
+    function moveCursor(player, direction) {
+      if (!state.isGameActive) return;
+      
+      const cursor = player === 1 ? state.cursor1 : state.cursor2;
+      const step = 2;
+      
+      switch (direction) {
+        case 'up':
+          cursor.lat = Math.min(85, cursor.lat + step);
+          break;
+        case 'down':
+          cursor.lat = Math.max(-85, cursor.lat - step);
+          break;
+        case 'left':
+          cursor.lng = cursor.lng - step;
+          break;
+        case 'right':
+          cursor.lng = cursor.lng + step;
+          break;
+      }
+      
+      // Handle world wrapping
+      if (cursor.lng < -180) cursor.lng += 360;
+      if (cursor.lng > 180) cursor.lng -= 360;
+      
+      updateCursorMarkers();
+      
+      // Center map on cursor
+      if (player === 1) {
+        map1.setView(cursor, map1.getZoom());
+      } else {
+        map2.setView(cursor, map2.getZoom());
+      }
+    }
+    
+    // Make guess
+    function makeGuess(player) {
+      if (!state.isGameActive) return;
+      
+      const cursor = player === 1 ? state.cursor1 : state.cursor2;
+      const target = player === 1 ? state.player1Target : state.player2Target;
+      
+      if (!target) return;
+      
+      // Check if cursor is over the target country
+      const isOverTarget = isPointInCountry(cursor, target);
+      
+      if (isOverTarget) {
+        // Correct guess!
+        if (player === 1) {
+          state.player1Score++;
+          document.getElementById('player1Score').textContent = state.player1Score;
+          
+          // Remove country from player's list
+          state.player1Countries = state.player1Countries.filter(c => c !== target);
+          state.completedCountries.add(target.properties.name);
+          
+          // Set new target
+          if (state.player1Countries.length > 0) {
+            const randomIndex = Math.floor(Math.random() * state.player1Countries.length);
+            state.player1Target = state.player1Countries[randomIndex];
+            document.getElementById('player1Target').textContent = state.player1Target.properties.name;
+          } else {
+            state.player1Target = null;
+            document.getElementById('player1Target').textContent = 'All done!';
+          }
+          
+          toast(`Player 1 found ${target.properties.name}!`, 'ok');
+        } else {
+          state.player2Score++;
+          document.getElementById('player2Score').textContent = state.player2Score;
+          
+          // Remove country from player's list
+          state.player2Countries = state.player2Countries.filter(c => c !== target);
+          state.completedCountries.add(target.properties.name);
+          
+          // Set new target
+          if (state.player2Countries.length > 0) {
+            const randomIndex = Math.floor(Math.random() * state.player2Countries.length);
+            state.player2Target = state.player2Countries[randomIndex];
+            document.getElementById('player2Target').textContent = state.player2Target.properties.name;
+          } else {
+            state.player2Target = null;
+            document.getElementById('player2Target').textContent = 'All done!';
+          }
+          
+          toast(`Player 2 found ${target.properties.name}!`, 'ok');
+        }
+        
+        // Check if game should end
+        if ((state.player1Target === null && state.player2Target === null) || 
+            (state.player1Countries.length === 0 && state.player2Countries.length === 0)) {
+          endGame();
+        }
+      } else {
+        // Wrong guess
+        toast(`Wrong! That's not ${target.properties.name}`, 'err');
+      }
+    }
+    
+    // Skip country
+    function skipCountry(player) {
+      if (!state.isGameActive) return;
+      
+      const target = player === 1 ? state.player1Target : state.player2Target;
+      
+      if (!target) return;
+      
+      if (player === 1) {
+        // Remove country from player's list
+        state.player1Countries = state.player1Countries.filter(c => c !== target);
+        
+        // Set new target
+        if (state.player1Countries.length > 0) {
+          const randomIndex = Math.floor(Math.random() * state.player1Countries.length);
+          state.player1Target = state.player1Countries[randomIndex];
+          document.getElementById('player1Target').textContent = state.player1Target.properties.name;
+        } else {
+          state.player1Target = null;
+          document.getElementById('player1Target').textContent = 'All done!';
+        }
+        
+        toast(`Player 1 skipped ${target.properties.name}`, 'ok');
+      } else {
+        // Remove country from player's list
+        state.player2Countries = state.player2Countries.filter(c => c !== target);
+        
+        // Set new target
+        if (state.player2Countries.length > 0) {
+          const randomIndex = Math.floor(Math.random() * state.player2Countries.length);
+          state.player2Target = state.player2Countries[randomIndex];
+          document.getElementById('player2Target').textContent = state.player2Target.properties.name;
+        } else {
+          state.player2Target = null;
+          document.getElementById('player2Target').textContent = 'All done!';
+        }
+        
+        toast(`Player 2 skipped ${target.properties.name}`, 'ok');
+      }
+      
+      // Check if game should end
+      if ((state.player1Target === null && state.player2Target === null) || 
+          (state.player1Countries.length === 0 && state.player2Countries.length === 0)) {
+        endGame();
+      }
+    }
+    
+    // Check if point is in country
+    function isPointInCountry(point, country) {
+      // Simple distance-based check for now
+      const countryCenter = getCountryCenter(country);
+      const distance = Math.sqrt(
+        Math.pow(point.lat - countryCenter.lat, 2) + 
+        Math.pow(point.lng - countryCenter.lng, 2)
+      );
+      
+      return distance < 15; // Threshold for "close enough"
+    }
+    
+    // Get country center
+    function getCountryCenter(country) {
+      if (country.geometry.type === 'Polygon') {
+        const coords = country.geometry.coordinates[0];
+        let lat = 0, lng = 0;
+        coords.forEach(coord => {
+          lng += coord[0];
+          lat += coord[1];
+        });
+        return { lat: lat / coords.length, lng: lng / coords.length };
+      } else if (country.geometry.type === 'MultiPolygon') {
+        const coords = country.geometry.coordinates[0][0];
+        let lat = 0, lng = 0;
+        coords.forEach(coord => {
+          lng += coord[0];
+          lat += coord[1];
+        });
+        return { lat: lat / coords.length, lng: lng / coords.length };
+      }
+      return { lat: 0, lng: 0 };
+    }
+    
+    // End game
+    function endGame() {
+      state.isGameActive = false;
+      if (state.timerInterval) {
+        clearInterval(state.timerInterval);
+        state.timerInterval = null;
+      }
+      
+      // Determine winner
+      let winner, winnerScore, loserScore;
+      if (state.player1Score > state.player2Score) {
+        winner = 1;
+        winnerScore = state.player1Score;
+        loserScore = state.player2Score;
+      } else if (state.player2Score > state.player1Score) {
+        winner = 2;
+        winnerScore = state.player2Score;
+        loserScore = state.player1Score;
+      } else {
+        winner = 'tie';
+        winnerScore = state.player1Score;
+        loserScore = state.player2Score;
+      }
+      
+      // Show game over modal
+      showGameOverModal(winner, winnerScore, loserScore);
+    }
+    
+    // Show game over modal
+    function showGameOverModal(winner, winnerScore, loserScore) {
+      if (winner === 'tie') {
+        document.getElementById('winnerAnnouncement').textContent = "It's a Tie!";
+      } else {
+        document.getElementById('winnerAnnouncement').textContent = `Player ${winner} Wins!`;
+      }
+      
+      document.getElementById('finalScore1').textContent = state.player1Score;
+      document.getElementById('finalScore2').textContent = state.player2Score;
+      
+      document.getElementById('gameOverModal').style.display = 'flex';
+    }
+    
+    // Hide game over modal
+    function hideGameOverModal() {
+      document.getElementById('gameOverModal').style.display = 'none';
+    }
+    
+    // Reset game
+    function resetGame() {
+      state.isGameActive = false;
+      state.timeLeft = 120;
+      state.player1Score = 0;
+      state.player2Score = 0;
+      state.completedCountries.clear();
+      
+      if (state.timerInterval) {
+        clearInterval(state.timerInterval);
+        state.timerInterval = null;
+      }
+      
+      document.getElementById('startBtn').style.display = 'inline-block';
+      document.getElementById('resetBtn').style.display = 'none';
+      document.getElementById('player1Score').textContent = '0';
+      document.getElementById('player2Score').textContent = '0';
+      document.getElementById('player1Target').textContent = 'Waiting...';
+      document.getElementById('player2Target').textContent = 'Waiting...';
+      
+      updateTimerDisplay();
+      
+      // Reset cursor positions
+      state.cursor1 = { lat: 20, lng: 0 };
+      state.cursor2 = { lat: 20, lng: 0 };
+      updateCursorMarkers();
+      
+      map1.setView([20, 0], 2);
+      map2.setView([20, 0], 2);
+      
+      toast('Game reset', 'ok');
+    }
+    
+    // Toast function
+    function toast(message, type = 'ok') {
+      const toastElement = document.getElementById('toast');
+      toastElement.textContent = message;
+      toastElement.className = `toast ${type}`;
+      toastElement.style.display = 'block';
+      
+      setTimeout(() => {
+        toastElement.style.display = 'none';
+      }, 2000);
+    }
+    
+    // Keyboard event handlers
+    document.addEventListener('keydown', (e) => {
+      if (!state.isGameActive) return;
+      
+      switch (e.key.toLowerCase()) {
+        // Player 1 controls (WASD + Space)
+        case 'w':
+          e.preventDefault();
+          moveCursor(1, 'up');
+          break;
+        case 'a':
+          e.preventDefault();
+          moveCursor(1, 'left');
+          break;
+        case 's':
+          e.preventDefault();
+          moveCursor(1, 'down');
+          break;
+        case 'd':
+          e.preventDefault();
+          moveCursor(1, 'right');
+          break;
+        case ' ':
+          e.preventDefault();
+          makeGuess(1);
+          break;
+        case 'q':
+          e.preventDefault();
+          skipCountry(1);
+          break;
+        
+        // Player 2 controls (Arrow keys + Enter + Shift)
+        case 'arrowup':
+          e.preventDefault();
+          moveCursor(2, 'up');
+          break;
+        case 'arrowleft':
+          e.preventDefault();
+          moveCursor(2, 'left');
+          break;
+        case 'arrowdown':
+          e.preventDefault();
+          moveCursor(2, 'down');
+          break;
+        case 'arrowright':
+          e.preventDefault();
+          moveCursor(2, 'right');
+          break;
+        case 'enter':
+          e.preventDefault();
+          makeGuess(2);
+          break;
+        case 'shift':
+          e.preventDefault();
+          skipCountry(2);
+          break;
+      }
+    });
+    
+    // Event listeners
+    document.getElementById('startBtn').addEventListener('click', startGame);
+    document.getElementById('resetBtn').addEventListener('click', resetGame);
+    document.getElementById('playAgainBtn').addEventListener('click', () => {
+      hideGameOverModal();
+      resetGame();
+    });
+    
+    // Initialize game
+    function init() {
+      initMaps();
+      loadCountries();
+      updateTimerDisplay();
+    }
+    
+    // Start when page loads
+    window.addEventListener('load', init);
+  </script>
+</body>
+</html>

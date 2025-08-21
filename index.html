@@ -1,0 +1,3364 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Atlas - Geography Games</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Kirang+Haerang&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --bg-primary: #ffffff;
+            --bg-secondary: #f8fafc;
+            --bg-accent: #e2e8f0;
+            --text-primary: #1e293b;
+            --text-secondary: #475569;
+            --accent-color: #333333;
+            --border-color: #cbd5e1;
+            --shadow-color: rgba(0, 0, 0, 0.1);
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        /* Mouse Trail Canvas */
+        #fluid-canvas {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 100;
+            background: transparent;
+            cursor: crosshair;
+            pointer-events: none;
+            mix-blend-mode: multiply;
+        }
+        
+        /* Ensure WebGL canvas is properly sized */
+        #fluid-canvas:focus {
+            outline: none;
+        }
+
+        /* Squared grid lines background */
+        .bg-grid {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -2;
+            background-image: 
+                linear-gradient(rgba(100, 100, 100, 0.15) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(100, 100, 100, 0.15) 1px, transparent 1px);
+            background-size: 20px 20px;
+        }
+
+
+
+
+
+        /* Header */
+        .header {
+            text-align: center;
+            padding: 4rem 2rem 2rem;
+        }
+
+        .title {
+            font-size: 3.5rem;
+            font-weight: 700;
+            font-family: 'Kirang Haerang', cursive;
+            margin-bottom: 1rem;
+            background: linear-gradient(135deg, #1e293b, #333333);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            position: relative;
+            display: inline-block;
+        }
+
+        .title span {
+            display: inline-block;
+            opacity: 0;
+            transform: translateY(20px);
+            animation: drawLetter 0.6s ease forwards;
+            background: linear-gradient(135deg, #1e293b, #333333);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .title span:nth-child(1) { animation-delay: 0.1s; }
+        .title span:nth-child(2) { animation-delay: 0.2s; }
+        .title span:nth-child(3) { animation-delay: 0.3s; }
+        .title span:nth-child(4) { animation-delay: 0.4s; }
+        .title span:nth-child(5) { animation-delay: 0.5s; }
+
+        @keyframes drawLetter {
+            0% {
+                opacity: 0;
+                transform: translateY(20px) scale(0.8);
+            }
+            50% {
+                opacity: 0.7;
+                transform: translateY(-5px) scale(1.1);
+            }
+            100% {
+                opacity: 1;
+                transform: translateY(0) scale(1);
+            }
+        }
+
+        .title::after {
+            content: '';
+            position: absolute;
+            bottom: -5px;
+            left: 0;
+            width: 0;
+            height: 3px;
+            background: linear-gradient(135deg, #1e293b, #333333);
+
+            animation-delay: 0.8s;
+        }
+
+
+        
+
+        /* Constant minimal animation for Atlas text */
+        .title {
+            animation: breathe 3s ease-in-out infinite;
+        }
+
+        @keyframes breathe {
+            0%, 100% {
+                transform: scale(1);
+            }
+            50% {
+                transform: scale(1.02);
+            }
+        }
+
+        .title span {
+            animation: drawLetter 0.6s ease forwards, float 4s ease-in-out infinite;
+        }
+
+        @keyframes float {
+            0%, 100% {
+                transform: translateY(0);
+            }
+            50% {
+                transform: translateY(-3px);
+            }
+        }
+
+        .subtitle {
+            font-size: 1.2rem;
+            color: var(--text-secondary);
+            font-weight: 400;
+            margin-bottom: 2rem;
+        }
+        
+        .game-map-container {
+            margin: 1.5rem 0;
+            text-align: center;
+            position: relative;
+        }
+        
+        .map-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 1000;
+            pointer-events: none;
+        }
+        
+        .timer-overlay {
+            position: absolute;
+            top: 10px;
+            left: 15px;
+            font-family: 'Courier New', monospace;
+            font-size: 14px;
+            color: var(--text-primary);
+            font-weight: 600;
+        }
+        
+        .instructions-overlay {
+            position: absolute;
+            top: 10px;
+            right: 15px;
+            font-size: 12px;
+            color: var(--text-secondary);
+            font-weight: 500;
+        }
+        
+        .puzzle-selector-connected {
+            display: flex;
+            justify-content: center;
+            gap: 0.3rem;
+            margin: 0 auto;
+            padding: 0.3rem;
+            background: var(--bg-accent);
+            border: 3px solid var(--border-color);
+            border-top: none;
+            border-radius: 0 0 6px 6px;
+            max-width: 400px;
+            box-shadow: 0 2px 8px var(--shadow-color);
+        }
+        
+
+        
+        .puzzle-square {
+            width: 45px;
+            height: 45px;
+            background: var(--bg-secondary);
+            border: 2px solid var(--border-color);
+            border-radius: 6px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            position: relative;
+        }
+        
+        .puzzle-square:hover {
+            transform: translateY(-2px);
+            border-color: var(--accent-color);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+        }
+        
+        .puzzle-square.current {
+            border-color: var(--accent-color);
+            background: var(--accent-color);
+            color: rgb(255, 0, 0);
+        }
+        
+        .puzzle-square.completed {
+            border-color: #10b981;
+            background: #10b981;
+            color: white;
+            cursor: pointer;
+            opacity: 1;
+        }
+        
+        .puzzle-square.submitted {
+            border-color: #059669;
+            background: #059669;
+            color: white;
+            cursor: pointer;
+            opacity: 1;
+            position: relative;
+        }
+        
+        .puzzle-square.submitted::after {
+            content: '🏆';
+            position: absolute;
+            top: -5px;
+            right: -5px;
+            font-size: 12px;
+            background: #fbbf24;
+            border-radius: 50%;
+            width: 16px;
+            height: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border: 2px solid white;
+        }
+        
+        .puzzle-square.locked {
+            border-color: #6b7280;
+            background: #f3f4f6;
+            cursor: pointer;
+            opacity: 0.7;
+        }
+        
+        .puzzle-square.available {
+            border-color: #10b981;
+            background: #10b981;
+            color: white;
+            cursor: pointer;
+            opacity: 1;
+        }
+        
+        /* Custom tooltip for puzzle squares */
+        .puzzle-square[title]:hover::after {
+            content: attr(title);
+            position: absolute;
+            bottom: -40px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(0, 0, 0, 0.8);
+            color: white;
+            padding: 8px 12px;
+            border-radius: 6px;
+            font-size: 12px;
+            white-space: nowrap;
+            z-index: 1000;
+            pointer-events: none;
+            opacity: 1;
+            transition: opacity 0.3s ease;
+        }
+        
+        .puzzle-square[title]:hover::before {
+            content: '';
+            position: absolute;
+            bottom: -20px;
+            left: 50%;
+            transform: translateX(-50%);
+            border: 6px solid transparent;
+            border-top-color: rgba(0, 0, 0, 0.8);
+            z-index: 1000;
+            pointer-events: none;
+        }
+        
+
+        
+        .puzzle-number {
+            font-size: 1rem;
+            font-weight: 700;
+            line-height: 1;
+        }
+        
+        .puzzle-square.current .puzzle-number,
+        .puzzle-square.completed .puzzle-number {
+            color: white;
+        }
+        
+        .atlas-minimap {
+            width: 100%;
+            max-width: 600px;
+            height: 300px;
+            background: var(--bg-accent);
+            border: 5px solid var(--border-color);
+            border-radius: 8px;
+            margin: 0 auto;
+            overflow: hidden;
+            position: relative;
+            box-shadow: 0 4px 12px var(--shadow-color);
+        }
+        
+        .map-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            z-index: 9999;
+            pointer-events: none;
+            background: rgba(255, 255, 255, 0.1);
+        }
+        
+        .timer-overlay {
+            position: absolute;
+            top: 10px;
+            left: 15px;
+            font-family: 'Courier New', monospace;
+            font-size: 16px;
+            color: #000;
+            font-weight: 700;
+            padding: 8px 12px;
+            border-radius: 6px;
+            z-index: 10000;
+        }
+        
+        .instructions-overlay {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            font-size: 16px;
+            color: #000;
+            font-weight: 700;
+            padding: 12px 16px;
+            border-radius: 8px;
+            z-index: 10000;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .instructions-overlay.game-started {
+            top: 10px;
+            left: auto;
+            right: 15px;
+            transform: none;
+            font-size: 14px;
+            padding: 8px 12px;
+            border-radius: 6px;
+        }
+        
+        #tsparticles {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 9998;
+            pointer-events: none;
+        }
+        
+        .results-container {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 10002;
+            display: flex;
+            justify-content: center;
+            align-items: flex-start;
+            padding: 1rem;
+            box-sizing: border-box;
+            pointer-events: none;
+        }
+        
+        .leaderboard-section {
+            margin-top: 4rem;
+            padding: 2rem;
+            background: var(--bg-secondary);
+            border-radius: 16px;
+            border: 1px solid var(--border-color);
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+        }
+        
+        .leaderboard-header {
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+        
+        .leaderboard-header h2 {
+            font-size: 2.5rem;
+            color: var(--accent-color);
+            margin-bottom: 0.5rem;
+        }
+        
+        .leaderboard-header p {
+            font-size: 1.1rem;
+            color: var(--text-secondary);
+        }
+        
+        .view-leaderboard-btn {
+            margin-top: 1rem;
+            padding: 0.75rem 1.5rem;
+            background: var(--accent-color);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 1rem;
+            font-weight: 600;
+            transition: all 0.2s ease;
+        }
+        
+        .view-leaderboard-btn:hover {
+            background: #555;
+            transform: translateY(-1px);
+        }
+        
+        .score-submission {
+            margin-bottom: 2rem;
+        }
+        
+        .submission-container {
+            background: var(--bg-primary);
+            border: 2px solid var(--border-color);
+            border-radius: 12px;
+            padding: 2rem;
+            text-align: center;
+            max-width: 500px;
+            margin: 0 auto;
+        }
+        
+        .submission-container h3 {
+            font-size: 1.5rem;
+            color: var(--accent-color);
+            margin-bottom: 1.5rem;
+        }
+        
+        .submission-form {
+            display: flex;
+            flex-direction: column;
+            gap: 1.5rem;
+            align-items: center;
+        }
+        
+        .form-group {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 0.5rem;
+            width: 100%;
+        }
+        
+        .form-group label {
+            font-weight: 600;
+            color: var(--text-primary);
+            font-size: 1rem;
+        }
+        
+        .name-input {
+            padding: 0.75rem 1rem;
+            border: 2px solid var(--border-color);
+            border-radius: 8px;
+            font-size: 1rem;
+            min-width: 200px;
+            background: var(--bg-primary);
+            color: var(--text-primary);
+        }
+        
+        .name-input:focus {
+            outline: none;
+            border-color: var(--accent-color);
+            box-shadow: 0 0 0 3px rgba(51, 51, 51, 0.1);
+        }
+        
+        .submit-score-btn {
+            padding: 0.75rem 1.5rem;
+            background: var(--accent-color);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+        
+        .submit-score-btn:hover {
+            background: #555;
+            transform: translateY(-1px);
+        }
+        
+        .submit-score-btn:disabled {
+            background: #999;
+            cursor: not-allowed;
+            transform: none;
+        }
+        
+        .flag-selector {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(35px, 1fr));
+            gap: 4px;
+            max-width: 350px;
+            max-height: 200px;
+            overflow-y: auto;
+            padding: 0.75rem;
+            background: var(--bg-secondary);
+            border: 2px solid var(--border-color);
+            border-radius: 8px;
+        }
+        
+        .flag-option {
+            width: 35px;
+            height: 35px;
+            font-size: 1.3rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            border: 2px solid transparent;
+            border-radius: 6px;
+            transition: all 0.2s ease;
+            background: var(--bg-primary);
+        }
+        
+        .flag-option:hover {
+            border-color: var(--accent-color);
+            transform: scale(1.1);
+        }
+        
+        .flag-option.selected {
+            border-color: var(--accent-color);
+            background: var(--accent-color);
+            color: white;
+            transform: scale(1.1);
+        }
+        
+        .leaderboard-display {
+            background: var(--bg-primary);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 1.5rem;
+            max-height: 600px;
+            overflow-y: auto;
+        }
+        
+        /* Responsive design for mobile */
+        @media (max-width: 768px) {
+            .leaderboard-section {
+                margin-top: 2rem;
+                padding: 1rem;
+            }
+            
+            .leaderboard-header h2 {
+                font-size: 2rem;
+            }
+            
+            .submission-form {
+                flex-direction: column;
+                align-items: stretch;
+            }
+            
+            .name-input {
+                min-width: auto;
+                width: 100%;
+            }
+            
+            .submit-score-btn {
+                width: 100%;
+            }
+        }
+        
+        .leaderboard-container {
+            background: var(--bg-secondary);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 1.5rem;
+            width: 350px;
+            height: 400px;
+            overflow-y: auto;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+            pointer-events: auto;
+            flex-shrink: 0; /* Prevent shrinking */
+        }
+        
+        .leaderboard-container h3 {
+            color: var(--text-primary);
+            font-size: 1.2rem;
+            margin-bottom: 1rem;
+            text-align: center;
+            border-bottom: 2px solid var(--accent-color);
+            padding-bottom: 0.5rem;
+        }
+        
+        .name-input-section {
+            margin-bottom: 1rem;
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+        
+        .name-input {
+            padding: 0.75rem;
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
+            font-size: 0.9rem;
+            background: var(--bg-accent);
+            color: var(--text-primary);
+            text-align: center;
+        }
+        
+        .name-input:focus {
+            outline: none;
+            border-color: var(--accent-color);
+            box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.2);
+        }
+        
+        .submit-score-btn {
+            padding: 0.75rem;
+            background: var(--accent-color);
+            color: white;
+            border: none;
+            border-radius: 6px;
+            font-size: 0.9rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+        
+        .submit-score-btn:hover {
+            background: #1a1a1a;
+            transform: translateY(-1px);
+        }
+        
+        .submit-score-btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+        
+        .leaderboard {
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+        
+        .leaderboard-entry {
+            background: var(--bg-accent);
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
+            padding: 1rem;
+            transition: all 0.2s ease;
+            font-size: 0.9rem;
+            margin-bottom: 0.75rem;
+        }
+        
+        .leaderboard-entry:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+        }
+        
+        .leaderboard-entry .medal {
+            font-size: 1.3rem;
+            margin-right: 0.75rem;
+        }
+        
+        .leaderboard-entry .country-flag {
+            font-size: 1.8rem;
+            margin-right: 0.5rem;
+        }
+        
+        .leaderboard-entry .player-info {
+            flex: 1;
+        }
+        
+        .leaderboard-entry .score-info {
+            text-align: right;
+            min-width: 80px;
+        }
+        
+        .atlas-minimap .leaflet-container {
+            border-radius: 8px;
+        }
+        
+        /* Custom tooltip styling */
+        .country-tooltip {
+            background: var(--bg-primary);
+            border: 1px solid var(--border-color);
+            border-radius: 4px;
+            padding: 4px 8px;
+            font-size: 12px;
+            color: var(--text-primary);
+            box-shadow: 0 2px 8px var(--shadow-color);
+        }
+        
+
+        
+
+        
+
+        
+
+        
+
+
+        /* Main content */
+        .main {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+
+        /* Game modes grid */
+        .game-modes {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2rem;
+            margin-top: 3rem;
+        }
+
+        .game-mode {
+            background: var(--bg-secondary);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            padding: 1.5rem;
+            transition: all 0.3s ease;
+            cursor: pointer;
+            position: relative;
+            overflow: hidden;
+            text-align: center;
+        }
+
+        .game-mode::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 4px;
+            background: var(--accent-color);
+            transform: scaleX(0);
+            transition: transform 0.3s ease;
+        }
+
+        .game-mode:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 20px 40px var(--shadow-color);
+            border-color: var(--accent-color);
+        }
+
+        .game-mode:hover::before {
+            transform: scaleX(1);
+        }
+
+        .game-mode-preview {
+            margin-bottom: 1.5rem;
+        }
+
+        .preview-gif {
+            width: 100%;
+            height: 200px;
+            object-fit: cover;
+            border-radius: 6px;
+            border: 1px solid var(--border-color);
+        }
+
+        .game-mode-info {
+            margin-bottom: 1.5rem;
+        }
+
+        .game-mode-info h3 {
+            font-size: 1.5rem;
+            font-weight: 600;
+            color: var(--text-primary);
+            margin-bottom: 0.5rem;
+        }
+        
+        .game-mode-info p {
+            font-size: 0.9rem;
+            color: var(--text-secondary);
+            line-height: 1.4;
+            opacity: 0.8;
+            margin: 0;
+        }
+
+        .play-button {
+            background: var(--accent-color);
+            color:#f8fafc;
+            border: none;
+            padding: 0.75rem 1.5rem;
+            border-radius: 6px;
+            font-size: 1rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            width: 100%;
+        }
+
+        .play-button:hover {
+            background: #1a1a1a;
+            transform: translateY(-1px);
+        }
+
+        /* Footer */
+        .footer {
+            text-align: center;
+            padding: 3rem 2rem;
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+        }
+
+        /* Responsive design */
+        @media (max-width: 768px) {
+            .title {
+                font-size: 2.5rem;
+            }
+
+            .game-modes {
+                grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+                gap: 1.5rem;
+            }
+
+            .game-mode {
+                padding: 1.5rem;
+            }
+
+            .main {
+                padding: 1rem;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .title {
+                font-size: 2rem;
+            }
+
+            .header {
+                padding: 2rem 1rem 1rem;
+            }
+
+            .game-modes {
+                grid-template-columns: 1fr;
+            }
+
+            .preview-gif {
+                height: 180px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Background grid -->
+    <div class="bg-grid"></div>
+    
+    <!-- WebGL Fluid Background -->
+    <canvas id="fluid-canvas"></canvas>
+
+    <!-- Header -->
+    <header class="header">
+        <h1 class="title">
+            <span>A</span>
+            <span>t</span>
+            <span>l</span>
+            <span>a</span>
+            <span>s</span>
+        </h1>
+
+        
+        <div class="atlas-minimap" id="atlas-minimap">
+            <div class="map-overlay">
+                <div class="timer-overlay" id="timer-overlay" style="display: none;">
+                    <span id="timer-text">00:00:000</span>
+                </div>
+                <div class="instructions-overlay" style="display: block !important;">
+                    <span id="direction-text">Click any country to start</span>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Daily Puzzle Selector - Connected to minimap (visible by default) -->
+        <div class="puzzle-selector-connected" id="puzzle-selector">
+            <div class="puzzle-square" onclick="selectPuzzle('2025-08-15')" id="puzzle-2025-08-15">
+                <span class="puzzle-number">1</span>
+            </div>
+            <div class="puzzle-square" onclick="selectPuzzle('2025-08-18')" id="puzzle-2025-08-18">
+                <span class="puzzle-number">2</span>
+            </div>
+            <div class="puzzle-square current" onclick="selectPuzzle('2025-08-21')" id="puzzle-2025-08-21">
+                <span class="puzzle-number">3</span>
+            </div>
+            <div class="puzzle-square locked" onclick="selectPuzzle('2025-08-24')" id="puzzle-2025-08-24">
+                <span class="puzzle-number">4</span>
+            </div>
+        </div>
+        
+
+        
+        <div id="tsparticles"></div>
+    </header>
+
+    <!-- Main content -->
+    <main class="main">
+        <div class="game-modes">
+            <!-- Population Mode -->
+            <div class="game-mode" onclick="window.location.href='population.html'">
+                <div class="game-mode-preview">
+                    <img src="gifs/populationHint.gif" alt="Population Mode Preview" class="preview-gif">
+                </div>
+                <div class="game-mode-info">
+                    <h3>Population</h3>
+                    <p>lower or higher ?</p>
+                </div>
+                <button class="play-button">Start</button>
+            </div>
+
+            <!-- Playground Mode -->
+            <div class="game-mode" onclick="window.location.href='playground.html'">
+                <div class="game-mode-preview">
+                    <img src="gifs/playgroundGif.gif" alt="Playground Mode Preview" class="preview-gif">
+                </div>
+                <div class="game-mode-info">
+                    <h3>Playground</h3>
+                    <p>free exploration</p>
+                </div>
+                <button class="play-button">Start</button>
+            </div>
+
+            <!-- Time Mode -->
+            <div class="game-mode" onclick="window.location.href='time.html'">
+                <div class="game-mode-preview">
+                    <img src="gifs/timeGif.gif" alt="Time Mode Preview" class="preview-gif">
+                </div>
+                <div class="game-mode-info">
+                    <h3>Time</h3>
+                    <p>race against time</p>
+                </div>
+                <button class="play-button">Start</button>
+            </div>
+
+            <!-- Hint Mode -->
+            <div class="game-mode" onclick="window.location.href='hint.html'">
+                <div class="game-mode-preview">
+                    <img src="gifs/hintGif.gif" alt="Hint Mode Preview" class="preview-gif">
+                </div>
+                <div class="game-mode-info">
+                    <h3>Hint</h3>
+                    <p>get funny clues</p>
+                </div>
+                <button class="play-button">Start</button>
+            </div>
+
+            <!-- Football Mode -->
+            <div class="game-mode" onclick="window.location.href='football.html'">
+                <div class="game-mode-preview">
+                    <img src="gifs/footballGif.gif" alt="Football Mode Preview" class="preview-gif">
+                </div>
+                <div class="game-mode-info">
+                    <h3>Football</h3>
+                    <p>learn through football</p>
+                </div>
+                <button class="play-button">Start</button>
+            </div>
+
+            <!-- Duel Mode -->
+            <div class="game-mode" onclick="window.location.href='duel.html'">
+                <div class="game-mode-preview">
+                    <img src="gifs/duelGif.gif" alt="Duel Mode Preview" class="preview-gif">
+                </div>
+                <div class="game-mode-info">
+                    <h3>Duel</h3>
+                    <p>two-player competitive</p>
+                </div>
+                <button class="play-button">Start</button>
+            </div>
+
+
+        </div>
+        
+        <!-- Global Leaderboard Section -->
+        <div class="leaderboard-section" id="leaderboard-section" style="display: block;">
+            <div class="leaderboard-header">
+                <p>Global Leaderboard</p>
+                
+            </div>
+            
+            <!-- Score Submission Section -->
+            <div class="score-submission" id="score-submission" style="display: none;">
+                <div class="submission-container">
+                    <h3>🎯 Submit Your Score</h3>
+                    
+                    <!-- Login Status Display -->
+                    <div id="login-status"></div>
+                    
+                    <div class="submission-form">
+                        <div class="form-group">
+                            <label for="player-name">Your Name:</label>
+                            <input type="text" id="player-name" placeholder="Enter your name" maxlength="20" class="name-input">
+                        </div>
+                        <div class="form-group">
+                            <label for="player-flag">Choose Your Flag:</label>
+                            <div class="flag-selector" id="flag-selector">
+                                <!-- Flags will be populated here -->
+                            </div>
+                        </div>
+                        <button onclick="submitScore()" class="submit-score-btn">Submit Score</button>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Leaderboard Display -->
+            <div class="leaderboard-display">
+                <div class="leaderboard" id="leaderboard">
+                    <!-- Leaderboard will be populated here -->
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <p>&copy; 2024 Atlas - Interactive Geography Learning</p>
+        <p style="margin-top: 10px;">
+            <a href="deploy-guide.html" style="color: var(--accent-color); text-decoration: none; font-weight: 500;">
+                🚀 Deploy Online
+            </a>
+        </p>
+    </footer>
+
+    <script>
+        // Add smooth hover effects
+        document.querySelectorAll('.game-mode').forEach(mode => {
+            mode.addEventListener('mouseenter', function() {
+                this.style.transform = 'translateY(-4px)';
+            });
+            
+            mode.addEventListener('mouseleave', function() {
+                this.style.transform = 'translateY(0)';
+            });
+        });
+
+        // Add click feedback
+        document.querySelectorAll('.game-mode').forEach(mode => {
+            mode.addEventListener('click', function() {
+                // Add click animation
+                this.style.transform = 'scale(0.98)';
+                setTimeout(() => {
+                    this.style.transform = 'scale(1)';
+                }, 150);
+            });
+        });
+
+        // Lightweight Mouse Trail System
+        class LightMouseTrail {
+            constructor() {
+                this.canvas = document.getElementById('fluid-canvas');
+                if (!this.canvas) {
+                    console.error('Canvas not found!');
+                    return;
+                }
+                
+                this.ctx = this.canvas.getContext('2d');
+                if (!this.ctx) {
+                    console.error('2D context not available!');
+                    return;
+                }
+                
+                // Enable high-quality rendering
+                this.ctx.imageSmoothingEnabled = true;
+                this.ctx.imageSmoothingQuality = 'high';
+                
+                this.mouse = { x: 0, y: 0 };
+                this.trail = [];
+                this.isMouseDown = false;
+                
+                console.log('LightMouseTrail initialized successfully!');
+                
+                this.resize();
+                this.bindEvents();
+                this.animate();
+            }
+            
+            resize() {
+                this.canvas.width = window.innerWidth * window.devicePixelRatio;
+                this.canvas.height = window.innerHeight * window.devicePixelRatio;
+                this.canvas.style.width = window.innerWidth + 'px';
+                this.canvas.style.height = window.innerHeight + 'px';
+                this.ctx.scale(window.devicePixelRatio, window.devicePixelRatio);
+            }
+            
+            bindEvents() {
+                // Smooth mouse tracking with throttling
+                let ticking = false;
+                
+                document.addEventListener('mousemove', (e) => {
+                    if (!ticking) {
+                        requestAnimationFrame(() => {
+                            this.updateMousePosition(e.clientX, e.clientY);
+                            ticking = false;
+                        });
+                        ticking = true;
+                    }
+                });
+                
+                document.addEventListener('mousedown', () => {
+                    this.isMouseDown = true;
+                });
+                
+                document.addEventListener('mouseup', () => {
+                    this.isMouseDown = false;
+                });
+                
+                window.addEventListener('resize', () => this.resize());
+            }
+            
+            updateMousePosition(x, y) {
+                // Smooth interpolation for better trail quality
+                const targetX = x;
+                const targetY = y;
+                
+                // Add to trail with smooth interpolation
+                this.trail.push({ 
+                    x: targetX, 
+                    y: targetY, 
+                    time: Date.now(),
+                    targetX: targetX,
+                    targetY: targetY
+                });
+                
+                if (this.trail.length > 50) {
+                    this.trail.shift();
+                }
+            }
+            
+            animate() {
+                // Only clear a small area around the trail, not the entire page
+                this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
+                
+                // Draw only the trail lines, nothing else
+                if (this.trail.length > 1) {
+                    this.ctx.beginPath();
+                    this.ctx.moveTo(this.trail[0].x, this.trail[0].y);
+                    
+                    for (let i = 1; i < this.trail.length; i++) {
+                        const point = this.trail[i];
+                        const age = Date.now() - point.time;
+                        const opacity = Math.max(0, 1 - age / 800);
+                        
+                        if (opacity > 0) {
+                            this.ctx.lineTo(point.x, point.y);
+                        }
+                    }
+                    
+                    // Simple trail drawing
+                    this.ctx.strokeStyle = this.isMouseDown ? 
+                        'rgba(0, 0, 0, 0.8)' : 
+                        'rgba(80, 80, 80, 0.6)';
+                    this.ctx.lineWidth = this.isMouseDown ? 4 : 2;
+                    this.ctx.lineCap = 'round';
+                    this.ctx.lineJoin = 'round';
+                    this.ctx.stroke();
+                }
+                
+                // Simple cursor
+                if (this.trail.length > 0) {
+                    const lastPoint = this.trail[this.trail.length - 1];
+                    const cursorSize = this.isMouseDown ? 6 : 4;
+                    
+                    this.ctx.beginPath();
+                    this.ctx.arc(lastPoint.x, lastPoint.y, cursorSize, 0, Math.PI * 2);
+                    this.ctx.fillStyle = this.isMouseDown ? 
+                        'rgba(0, 0, 0, 0.8)' : 
+                        'rgba(80, 80, 80, 0.6)';
+                    this.ctx.fill();
+                }
+                
+                // Clean up old trail points
+                this.trail = this.trail.filter(point => Date.now() - point.time < 800);
+                
+                requestAnimationFrame(() => this.animate());
+            }
+        }
+        
+        // Game variables - declare all at the top BEFORE any function calls
+        let currentCountry = null;
+        let gameActive = false;
+        let gameTimer = null;
+        let startTime = null;
+        let countryCenters = {}; // Store center coordinates for each country
+        let currentGameResult = null; // Store current game result
+        let gameMap = null; // Leaflet map instance
+        let gameGeoData = null; // GeoJSON data
+        
+        // Daily puzzle system - new puzzle every 3 days at 20:00
+        const dailyPuzzles = {
+            '2025-08-15': {
+                country: 'Sri Lanka',
+                date: 'August 15, 2025',
+                status: 'completed'
+            },
+            '2025-08-18': {
+                country: 'South Korea',
+                date: 'August 18, 2025',
+                status: 'completed'
+            },
+            '2025-08-21': {
+                country: 'United States of America',
+                date: 'August 21, 2025',
+                status: 'current'
+            },
+            '2025-08-24': {
+                country: 'Brazil',
+                date: 'August 24, 2025',
+                status: 'locked'
+            },
+            '2025-08-27': {
+                country: 'Japan',
+                date: 'August 27, 2025',
+                status: 'locked'
+            },
+            '2025-08-30': {
+                country: 'Australia',
+                date: 'August 30, 2025',
+                status: 'locked'
+            },
+            '2025-09-02': {
+                country: 'Bhutan',
+                date: 'September 2, 2025',
+                status: 'locked'
+            },
+            '2025-09-05': {
+                country: 'Mauritania',
+                date: 'September 5, 2025',
+                status: 'locked'
+            },
+            '2025-09-08': {
+                country: 'Cambodia',
+                date: 'September 8, 2025',
+                status: 'locked'
+            },
+            '2025-09-11': {
+                country: 'Eswatini',
+                date: 'September 11, 2025',
+                status: 'locked'
+            },
+            '2025-09-14': {
+                country: 'Kyrgyzstan',
+                date: 'September 14, 2025',
+                status: 'locked'
+            },
+            '2025-09-17': {
+                country: 'Lesotho',
+                date: 'September 17, 2025',
+                status: 'locked'
+            },
+            '2025-09-20': {
+                country: 'Egypt',
+                date: 'September 20, 2025',
+                status: 'locked'
+            },
+            '2025-09-23': {
+                country: 'Tajikistan',
+                date: 'September 23, 2025',
+                status: 'locked'
+            },
+            '2025-09-26': {
+                country: 'Afghanistan',
+                date: 'September 26, 2025',
+                status: 'locked'
+            },
+            '2025-09-29': {
+                country: 'Comoros',
+                date: 'September 29, 2025',
+                status: 'locked'
+            },
+            '2025-10-02': {
+                country: 'Iran',
+                date: 'October 2, 2025',
+                status: 'locked'
+            },
+            '2025-10-05': {
+                country: 'Djibouti',
+                date: 'October 5, 2025',
+                status: 'locked'
+            },
+            '2025-10-08': {
+                country: 'Turkmenistan',
+                date: 'October 8, 2025',
+                status: 'locked'
+            },
+            '2025-10-11': {
+                country: 'Guinea-Bissau',
+                date: 'October 11, 2025',
+                status: 'locked'
+            },
+            '2025-10-14': {
+                country: 'Equatorial Guinea',
+                date: 'October 14, 2025',
+                status: 'locked'
+            },
+            '2025-10-17': {
+                country: 'São Tomé and Príncipe',
+                date: 'October 17, 2025',
+                status: 'locked'
+            },
+            '2025-10-20': {
+                country: 'Australia',
+                date: 'October 20, 2025',
+                status: 'locked'
+            },
+            '2025-10-23': {
+                country: 'Cape Verde',
+                date: 'October 23, 2025',
+                status: 'locked'
+            },
+            '2025-10-26': {
+                country: 'Gambia',
+                date: 'October 26, 2025',
+                status: 'locked'
+            },
+            '2025-10-29': {
+                country: 'Peru',
+                date: 'October 29, 2025',
+                status: 'locked'
+            },
+            '2025-11-01': {
+                country: 'Turkey',
+                date: 'November 1, 2025',
+                status: 'locked'
+            },
+            '2025-11-04': {
+                country: 'Ukraine',
+                date: 'November 4, 2025',
+                status: 'locked'
+            },
+            '2025-11-07': {
+                country: 'Romania',
+                date: 'November 7, 2025',
+                status: 'locked'
+            },
+            '2025-11-10': {
+                country: 'Bulgaria',
+                date: 'November 10, 2025',
+                status: 'locked'
+            },
+            '2025-11-13': {
+                country: 'Croatia',
+                date: 'November 13, 2025',
+                status: 'locked'
+            },
+            '2025-11-16': {
+                country: 'South Africa',
+                date: 'November 16, 2025',
+                status: 'locked'
+            },
+            '2025-11-19': {
+                country: 'Slovenia',
+                date: 'November 19, 2025',
+                status: 'locked'
+            },
+            '2025-11-22': {
+                country: 'Slovakia',
+                date: 'November 22, 2025',
+                status: 'locked'
+            },
+            '2025-11-25': {
+                country: 'Lithuania',
+                date: 'November 25, 2025',
+                status: 'locked'
+            },
+            '2025-11-28': {
+                country: 'Latvia',
+                date: 'November 28, 2025',
+                status: 'locked'
+            },
+            '2025-12-01': {
+                country: 'North Korea',
+                date: 'December 1, 2025',
+                status: 'locked'
+            },
+            '2025-12-04': {
+                country: 'Iceland',
+                date: 'December 4, 2025',
+                status: 'locked'
+            },
+            '2025-12-07': {
+                country: 'Ireland',
+                date: 'December 7, 2025',
+                status: 'locked'
+            },
+            '2025-12-10': {
+                country: 'Luxembourg',
+                date: 'December 10, 2025',
+                status: 'locked'
+            },
+            '2025-12-13': {
+                country: 'Malta',
+                date: 'December 13, 2025',
+                status: 'locked'
+            },
+            '2025-12-16': {
+                country: 'Cyprus',
+                date: 'December 16, 2025',
+                status: 'locked'
+            },
+            '2025-12-19': {
+                country: 'Albania',
+                date: 'December 19, 2025',
+                status: 'locked'
+            },
+            '2025-12-22': {
+                country: 'Macedonia',
+                date: 'December 22, 2025',
+                status: 'locked'
+            },
+            '2025-12-25': {
+                country: 'Azerbaijan',
+                date: 'December 25, 2025',
+                status: 'locked'
+            },
+            '2025-12-28': {
+                country: 'Bosnia and Herzegovina',
+                date: 'December 28, 2025',
+                status: 'locked'
+            },
+            '2025-12-31': {
+                country: 'Moldova',
+                date: 'December 31, 2025',
+                status: 'locked'
+            }
+        };
+        
+        // Get today's date in YYYY-MM-DD format
+        function getTodayDate() {
+            const today = new Date();
+            return today.toISOString().split('T')[0];
+        }
+        
+        // Get current puzzle
+        function getCurrentPuzzle() {
+            const today = getTodayDate();
+            return dailyPuzzles[today] || dailyPuzzles['2025-08-21']; // Fallback to current
+        }
+        
+        // Check if puzzle is completed
+        function isPuzzleCompleted(date) {
+            const puzzle = dailyPuzzles[date];
+            if (!puzzle) return false;
+            
+            // Check localStorage for completion status
+            const completedPuzzles = JSON.parse(localStorage.getItem('completedPuzzles') || '{}');
+            return completedPuzzles[date] === true;
+        }
+        
+        // Mark puzzle as completed
+        function markPuzzleCompleted(date) {
+            const completedPuzzles = JSON.parse(localStorage.getItem('completedPuzzles') || '{}');
+            completedPuzzles[date] = true;
+            localStorage.setItem('completedPuzzles', JSON.stringify(completedPuzzles));
+        }
+        
+        // Function to check if puzzle has been submitted to leaderboard
+        async function isPuzzleSubmittedToLeaderboard(country, playerName) {
+            if (!supabase || !playerName) return false;
+            
+            try {
+                const { data: existingScores, error } = await supabase
+                    .from('leaderboard')
+                    .select('*')
+                    .eq('player_name', playerName)
+                    .eq('country', country);
+                
+                if (error) {
+                    console.error('Error checking leaderboard submission:', error);
+                    return false;
+                }
+                
+                return existingScores && existingScores.length > 0;
+            } catch (error) {
+                console.error('Error checking leaderboard submission:', error);
+                return false;
+            }
+        }
+        
+        // Function to check if any puzzle has been completed
+        function hasAnyPuzzleBeenCompleted() {
+            const completedPuzzles = JSON.parse(localStorage.getItem('completedPuzzles') || '{}');
+            return Object.values(completedPuzzles).some(completed => completed === true);
+        }
+        
+        // Function to generate a unique device identifier
+        function generateDeviceId() {
+            const canvas = document.createElement('canvas');
+            const ctx = canvas.getContext('2d');
+            ctx.textBaseline = 'top';
+            ctx.font = '14px Arial';
+            ctx.fillText('Device fingerprint', 2, 2);
+            
+            const fingerprint = [
+                navigator.userAgent,
+                navigator.language,
+                screen.width + 'x' + screen.height,
+                new Date().getTimezoneOffset(),
+                canvas.toDataURL()
+            ].join('|');
+            
+            // Create a hash of the fingerprint
+            let hash = 0;
+            for (let i = 0; i < fingerprint.length; i++) {
+                const char = fingerprint.charCodeAt(i);
+                hash = ((hash << 5) - hash) + char;
+                hash = hash & hash; // Convert to 32-bit integer
+            }
+            
+            return Math.abs(hash).toString(36);
+        }
+        
+        // Function to get or create device ID
+        function getDeviceId() {
+            let deviceId = localStorage.getItem('deviceId');
+            if (!deviceId) {
+                deviceId = generateDeviceId();
+                localStorage.setItem('deviceId', deviceId);
+            }
+            return deviceId;
+        }
+        
+        // Function to save user login info
+        function saveUserLogin(playerName, playerFlag) {
+            const userData = {
+                playerName: playerName,
+                playerFlag: playerFlag,
+                deviceId: getDeviceId(),
+                loginTime: Date.now()
+            };
+            localStorage.setItem('userLogin', JSON.stringify(userData));
+            
+            // Update login status display
+            showLoginStatus();
+            
+            // Update submission form visibility
+            updateSubmissionFormVisibility();
+        }
+        
+        // Function to get saved user login info
+        function getUserLogin() {
+            const userData = localStorage.getItem('userLogin');
+            if (userData) {
+                try {
+                    return JSON.parse(userData);
+                } catch (e) {
+                    return null;
+                }
+            }
+            return null;
+        }
+        
+        // Function to check if user is logged in
+        function isUserLoggedIn() {
+            const userData = getUserLogin();
+            if (!userData) return false;
+            
+            // Check if device ID matches (prevent multiple logins from different devices)
+            if (userData.deviceId !== getDeviceId()) {
+                return false;
+            }
+            
+            // Check if login is not too old (optional: expire after 30 days)
+            const thirtyDaysAgo = Date.now() - (30 * 24 * 60 * 60 * 1000);
+            if (userData.loginTime < thirtyDaysAgo) {
+                return false;
+            }
+            
+            return true;
+        }
+        
+        // Function to clear user login (no longer used - removed logout functionality)
+        function clearUserLogin() {
+            localStorage.removeItem('userLogin');
+            // Update UI to show login form again
+            showLoginStatus();
+            updateSubmissionFormVisibility();
+        }
+        
+        // Function to show current login status
+        function showLoginStatus() {
+            const userLogin = getUserLogin();
+            const loginStatus = document.getElementById('login-status');
+            
+            if (loginStatus) {
+                if (userLogin) {
+                    loginStatus.innerHTML = `
+                        <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 15px; padding: 10px; background: #f3f4f6; border-radius: 6px; border: 1px solid #d1d5db;">
+                            <span>Logged in as: <strong>${userLogin.playerName}</strong> ${userLogin.playerFlag}</span>
+                            <span style="margin-left: auto; font-size: 0.8rem;">
+                                <a href="#" onclick="clearUserLogin(); return false;" style="color: #6b7280; text-decoration: underline;">Change Account</a>
+                            </span>
+                        </div>
+                    `;
+                } else {
+                    loginStatus.innerHTML = `
+                        <div style="margin-bottom: 15px; padding: 10px; background: #fef3c7; border-radius: 6px; border: 1px solid #f59e0b; color: #92400e;">
+                            <strong>First time user:</strong> Enter your name and select a flag below. This will be saved for future games.
+                        </div>
+                    `;
+                }
+            }
+        }
+        
+        // Function to update submission form visibility based on login status
+        function updateSubmissionFormVisibility() {
+            const userLogin = getUserLogin();
+            const nameInput = document.getElementById('player-name');
+            const flagSelector = document.getElementById('flag-selector');
+            const submitBtn = document.querySelector('.submit-score-btn');
+            
+            if (userLogin && isUserLoggedIn()) {
+                // User is logged in - hide inputs and auto-fill
+                if (nameInput) nameInput.style.display = 'none';
+                if (flagSelector) flagSelector.style.display = 'none';
+                
+                // Update submit button text
+                if (submitBtn) submitBtn.textContent = 'Submit Score';
+                
+                // Auto-fill the hidden inputs with saved values
+                if (nameInput) nameInput.value = userLogin.playerName;
+                if (window.selectedPlayerFlag !== userLogin.playerFlag) {
+                    window.selectedPlayerFlag = userLogin.playerFlag;
+                }
+            } else {
+                // User is not logged in - show inputs
+                if (nameInput) nameInput.style.display = 'block';
+                if (flagSelector) flagSelector.style.display = 'block';
+                
+                // Clear inputs
+                if (nameInput) nameInput.value = '';
+                if (window.selectedPlayerFlag) window.selectedPlayerFlag = '';
+            }
+        }
+        
+        // Function to check if puzzle selector should be visible
+        function shouldShowPuzzleSelector() {
+            // Check if user has explicitly chosen to always show
+            const alwaysShow = localStorage.getItem('alwaysShowPuzzleSelector') === 'true';
+            if (alwaysShow) {
+                return true;
+            }
+            
+            // Always show if any puzzle has been completed
+            if (hasAnyPuzzleBeenCompleted()) {
+                return true;
+            }
+            
+            // Show by default for new users
+            return true;
+        }
+        
+        // Get next puzzle date (every 3 days at 20:00)
+        function getNextPuzzleDate() {
+            const now = new Date();
+            const currentHour = now.getHours();
+            
+            // If it's before 20:00 today, next puzzle is today at 20:00
+            // If it's after 20:00 today, next puzzle is in 3 days at 20:00
+            let nextDate = new Date(now);
+            
+            if (currentHour < 20) {
+                // Today at 20:00
+                nextDate.setHours(20, 0, 0, 0);
+            } else {
+                // Next puzzle in 3 days at 20:00
+                nextDate.setDate(now.getDate() + 3);
+                nextDate.setHours(20, 0, 0, 0);
+            }
+            
+            return nextDate;
+        }
+        
+        // Calculate time until next puzzle
+        function getTimeUntilNextPuzzle() {
+            const now = new Date();
+            const nextPuzzle = getNextPuzzleDate();
+            
+            return nextPuzzle.getTime() - now.getTime();
+        }
+        
+        // Country flag mapping
+        const countryFlags = {
+                    'Afghanistan': '🇦🇫',
+            'Albania': '🇦🇱',
+            'Algeria': '🇩🇿',
+            'Andorra': '🇦🇩',
+            'Angola': '🇦🇴',
+            'Antigua and Barbuda': '🇦🇬',
+            'Argentina': '🇦🇷',
+            'Armenia': '🇦🇲',
+            'Australia': '🇦🇺',
+            'Austria': '🇦🇹',
+            'Azerbaijan': '🇦🇿',
+            'Bahamas': '🇧🇸',
+            'Bahrain': '🇧🇭',
+            'Bangladesh': '🇧🇩',
+            'Barbados': '🇧🇧',
+            'Belarus': '🇧🇾',
+            'Belgium': '🇧🇪',
+            'Belize': '🇧🇿',
+            'Benin': '🇧🇯',
+            'Bhutan': '🇧🇹',
+            'Bolivia': '🇧🇴',
+            'Bosnia and Herzegovina': '🇧🇦',
+            'Botswana': '🇧🇼',
+            'Brazil': '🇧🇷',
+            'Brunei': '🇧🇳',
+            'Bulgaria': '🇧🇬',
+            'Burkina Faso': '🇧🇫',
+            'Burundi': '🇧🇮',
+            'Cabo Verde': '🇨🇻',
+            'Cambodia': '🇰🇭',
+            'Cameroon': '🇨🇲',
+            'Canada': '🇨🇦',
+            'Central African Republic': '🇨🇫',
+            'Chad': '🇹🇩',
+            'Chile': '🇨🇱',
+            'China': '🇨🇳',
+            'Colombia': '🇨🇴',
+            'Comoros': '🇰🇲',
+            'Congo (Congo-Brazzaville)': '🇨🇬',
+            'Congo (Democratic Republic)': '🇨🇩',
+            'Costa Rica': '🇨🇷',
+            'Croatia': '🇭🇷',
+            'Cuba': '🇨🇺',
+            'Cyprus': '🇨🇾',
+            'Czech Republic': '🇨🇿',
+            'Denmark': '🇩🇰',
+            'Djibouti': '🇩🇯',
+            'Dominica': '🇩🇲',
+            'Dominican Republic': '🇩🇴',
+            'Ecuador': '🇪🇨',
+            'Egypt': '🇪🇬',
+            'El Salvador': '🇸🇻',
+            'Equatorial Guinea': '🇬🇶',
+            'Eritrea': '🇪🇷',
+            'Estonia': '🇪🇪',
+            'Eswatini': '🇸🇿',
+            'Ethiopia': '🇪🇹',
+            'Fiji': '🇫🇯',
+            'Finland': '🇫🇮',
+            'France': '🇫🇷',
+            'Gabon': '🇬🇦',
+            'Gambia': '🇬🇲',
+            'Georgia': '🇬🇪',
+            'Germany': '🇩🇪',
+            'Ghana': '🇬🇭',
+            'Greece': '🇬🇷',
+            'Grenada': '🇬🇩',
+            'Guatemala': '🇬🇹',
+            'Guinea': '🇬🇳',
+            'Guinea-Bissau': '🇬🇼',
+            'Guyana': '🇬🇾',
+            'Haiti': '🇭🇹',
+            'Honduras': '🇭🇳',
+            'Hungary': '🇭🇺',
+            'Iceland': '🇮🇸',
+            'India': '🇮🇳',
+            'Indonesia': '🇮🇩',
+            'Iran': '🇮🇷',
+            'Iraq': '🇮🇶',
+            'Ireland': '🇮🇪',
+            'Israel': '🇮🇱',
+            'Italy': '🇮🇹',
+            'Jamaica': '🇯🇲',
+            'Japan': '🇯🇵',
+            'Jordan': '🇯🇴',
+            'Kazakhstan': '🇰🇿',
+            'Kenya': '🇰🇪',
+            'Kiribati': '🇰🇮',
+            'Kuwait': '🇰🇼',
+            'Kyrgyzstan': '🇰🇬',
+            'Laos': '🇱🇦',
+            'Latvia': '🇱🇻',
+            'Lebanon': '🇱🇧',
+            'Lesotho': '🇱🇸',
+            'Liberia': '🇱🇷',
+            'Libya': '🇱🇾',
+            'Liechtenstein': '🇱🇮',
+            'Lithuania': '🇱🇹',
+            'Luxembourg': '🇱🇺',
+            'Madagascar': '🇲🇬',
+            'Malawi': '🇲🇼',
+            'Malaysia': '🇲🇾',
+            'Maldives': '🇲🇻',
+            'Mali': '🇲🇱',
+            'Malta': '🇲🇹',
+            'Marshall Islands': '🇲🇭',
+            'Mauritania': '🇲🇷',
+            'Mauritius': '🇲🇺',
+            'Mexico': '🇲🇽',
+            'Micronesia': '🇫🇲',
+            'Moldova': '🇲🇩',
+            'Monaco': '🇲🇨',
+            'Mongolia': '🇲🇳',
+            'Montenegro': '🇲🇪',
+            'Morocco': '🇲🇦',
+            'Mozambique': '🇲🇿',
+            'Myanmar': '🇲🇲',
+            'Namibia': '🇳🇦',
+            'Nauru': '🇳🇷',
+            'Nepal': '🇳🇵',
+            'Netherlands': '🇳🇱',
+            'New Zealand': '🇳🇿',
+            'Nicaragua': '🇳🇮',
+            'Niger': '🇳🇪',
+            'Nigeria': '🇳🇬',
+            'North Korea': '🇰🇵',
+            'North Macedonia': '🇲🇰',
+            'Norway': '🇳🇴',
+            'Oman': '🇴🇲',
+            'Pakistan': '🇵🇰',
+            'Palau': '🇵🇼',
+            'Palestine': '🇵🇸',
+            'Panama': '🇵🇦',
+            'Papua New Guinea': '🇵🇬',
+            'Paraguay': '🇵🇾',
+            'Peru': '🇵🇪',
+            'Philippines': '🇵🇭',
+            'Poland': '🇵🇱',
+            'Portugal': '🇵🇹',
+            'Qatar': '🇶🇦',
+            'Romania': '🇷🇴',
+            'Russia': '🇷🇺',
+            'Rwanda': '🇷🇼',
+            'Saint Kitts and Nevis': '🇰🇳',
+            'Saint Lucia': '🇱🇨',
+            'Saint Vincent and the Grenadines': '🇻🇨',
+            'Samoa': '🇼🇸',
+            'San Marino': '🇸🇲',
+            'Sao Tome and Principe': '🇸🇹',
+            'Saudi Arabia': '🇸🇦',
+            'Senegal': '🇸🇳',
+            'Serbia': '🇷🇸',
+            'Seychelles': '🇸🇨',
+            'Sierra Leone': '🇸🇱',
+            'Singapore': '🇸🇬',
+            'Slovakia': '🇸🇰',
+            'Slovenia': '🇸🇮',
+            'Solomon Islands': '🇸🇧',
+            'Somalia': '🇸🇴',
+            'South Africa': '🇿🇦',
+            'South Korea': '🇰🇷',
+            'South Sudan': '🇸🇸',
+            'Spain': '🇪🇸',
+            'Sri Lanka': '🇱🇰',
+            'Sudan': '🇸🇩',
+            'Suriname': '🇸🇷',
+            'Sweden': '🇸🇪',
+            'Switzerland': '🇨🇭',
+            'Syria': '🇸🇾',
+            'Taiwan': '🇹🇼',
+            'Tajikistan': '🇹🇯',
+            'Tanzania': '🇹🇿',
+            'Thailand': '🇹🇭',
+            'Timor-Leste': '🇹🇱',
+            'Togo': '🇹🇬',
+            'Tonga': '🇹🇴',
+            'Trinidad and Tobago': '🇹🇹',
+            'Tunisia': '🇹🇳',
+            'Turkey': '🇹🇷',
+            'Turkmenistan': '🇹🇲',
+            'Tuvalu': '🇹🇻',
+            'Uganda': '🇺🇬',
+            'Ukraine': '🇺🇦',
+            'United Arab Emirates': '🇦🇪',
+            'United Kingdom': '🇬🇧',
+            'United States of America': '🇺🇸',
+            'Uruguay': '🇺🇾',
+            'Uzbekistan': '🇺🇿',
+            'Vanuatu': '🇻🇺',
+            'Vatican City': '🇻🇦',
+            'Venezuela': '🇻🇪',
+            'Vietnam': '🇻🇳',
+            'Yemen': '🇾🇪',
+            'Zambia': '🇿🇲',
+            'Zimbabwe': '🇿🇼'
+        };
+        
+        // Function to get country flag emoji
+        function getCountryFlag(countryName) {
+            return countryFlags[countryName] || '🌍'; // Default to world emoji if no flag found
+        }
+        
+        // Function to calculate score based on time (faster = higher score)
+        function calculateScore(timeInSeconds) {
+            // Base score: 1000 points
+            // Time penalty: -10 points per second
+            // Minimum score: 100 points
+            const baseScore = 1000;
+            const timePenalty = timeInSeconds * 10;
+            const finalScore = Math.max(baseScore - timePenalty, 100);
+            return finalScore;
+        }
+        
+        // Function to populate flag selector
+        function populateFlagSelector() {
+            const flagSelector = document.getElementById('flag-selector');
+            if (!flagSelector) return;
+            
+            flagSelector.innerHTML = '';
+            
+            // Add all available flags
+            Object.values(countryFlags).forEach(flag => {
+                const flagOption = document.createElement('div');
+                flagOption.className = 'flag-option';
+                flagOption.textContent = flag;
+                flagOption.onclick = () => selectFlag(flag, flagOption);
+                flagSelector.appendChild(flagOption);
+            });
+            
+            // Auto-select first flag as default
+            const firstFlag = flagSelector.querySelector('.flag-option');
+            if (firstFlag) {
+                selectFlag(firstFlag.textContent, firstFlag);
+            }
+        }
+        
+        // Function to handle flag selection
+        function selectFlag(flag, element) {
+            // Remove previous selection
+            const allFlags = document.querySelectorAll('.flag-option');
+            allFlags.forEach(f => f.classList.remove('selected'));
+            
+            // Select new flag
+            element.classList.add('selected');
+            
+            // Store selected flag
+            window.selectedPlayerFlag = flag;
+        }
+        
+        // Function to get total score for a player
+        function getPlayerTotalScore(playerName) {
+            if (!window.playerScores) return 0;
+            return window.playerScores[playerName] || 0;
+        }
+        
+        // Function to select a puzzle
+        function selectPuzzle(date) {
+            const puzzle = dailyPuzzles[date];
+            if (!puzzle) return;
+            
+            // Check if puzzle is locked (future date)
+            if (date > getTodayDate()) {
+                // Show countdown for locked puzzle instead of alert
+                showLockedPuzzleCountdown(date, puzzle);
+                return;
+            }
+            
+            // Allow replaying puzzles - we'll just prevent duplicate submissions
+            // No need to check if puzzle is completed here
+            
+            // Set the selected puzzle
+            currentCountry = puzzle.country;
+            
+            // Update UI to show selected puzzle
+            updatePuzzleSelection(date);
+            
+            // Reset game state but keep the selected country
+            resetGame(true);
+            
+            // Update map instructions
+            const directionText = document.getElementById('direction-text');
+            if (directionText) {
+                directionText.textContent = `Click to start guessing`;
+            }
+            
+            console.log(`Selected puzzle: ${puzzle.country} for ${puzzle.date}`);
+            console.log(`Current target country set to: ${currentCountry}`);
+            console.log(`Puzzle object:`, puzzle);
+        }
+        
+        // Function to update puzzle selection UI
+        function updatePuzzleSelection(selectedDate) {
+            // Remove current selection from all squares
+            document.querySelectorAll('.puzzle-square').forEach(square => {
+                square.classList.remove('selected');
+            });
+            
+            // Add selection to clicked square
+            const selectedSquare = document.getElementById(`puzzle-${selectedDate}`);
+            if (selectedSquare) {
+                selectedSquare.classList.add('selected');
+            }
+        }
+        
+        // Function to update puzzle completion status
+        async function updatePuzzleStatus() {
+            const today = getTodayDate();
+            
+            // Get current player name for leaderboard submission check
+            const playerNameInput = document.getElementById('player-name');
+            const currentPlayerName = playerNameInput ? playerNameInput.value.trim() : '';
+            
+            for (const date of Object.keys(dailyPuzzles)) {
+                const square = document.getElementById(`puzzle-${date}`);
+                
+                if (square) {
+                    if (isPuzzleCompleted(date)) {
+                        // Check if this puzzle has been submitted to leaderboard
+                        const puzzle = dailyPuzzles[date];
+                        let isSubmitted = false;
+                        
+                        if (currentPlayerName && puzzle) {
+                            isSubmitted = await isPuzzleSubmittedToLeaderboard(puzzle.country, currentPlayerName);
+                        }
+                        
+                        if (isSubmitted) {
+                            square.classList.add('submitted');
+                            square.classList.remove('completed', 'current', 'locked');
+                            square.innerHTML = `<span class="puzzle-number">🏆</span>`;
+                        } else {
+                            square.classList.add('completed');
+                            square.classList.remove('submitted', 'current', 'locked');
+                            square.innerHTML = `<span class="puzzle-number">✅</span>`;
+                        }
+                    } else if (date === today) {
+                        square.classList.add('current');
+                        square.classList.remove('completed', 'submitted', 'locked');
+                        // Reset the square content to show current puzzle
+                        square.innerHTML = `<span class="puzzle-number">3</span>`;
+                    } else if (date < today) {
+                        square.classList.remove('completed', 'submitted', 'current', 'locked');
+                        // Reset the square content to show available puzzle
+                        const puzzle = dailyPuzzles[date];
+                        if (puzzle) {
+                            const puzzleNumber = Object.keys(dailyPuzzles).indexOf(date) + 1;
+                            square.innerHTML = `<span class="puzzle-number">${puzzleNumber}</span>`;
+                        }
+                    } else {
+                        square.classList.add('locked');
+                        square.classList.remove('completed', 'submitted', 'current');
+                        // Show locked puzzle number (but will be replaced by countdown if it's the next puzzle)
+                        const puzzle = dailyPuzzles[date];
+                        if (puzzle) {
+                            const puzzleNumber = Object.keys(dailyPuzzles).indexOf(date) + 1;
+                            square.innerHTML = `<span class="puzzle-number">${puzzleNumber}</span>`;
+                        }
+                    }
+                }
+            }
+            
+
+            
+            // Check if any new puzzles should be unlocked
+            checkForNewPuzzles();
+        }
+        
+        // Function to check if new puzzles should be unlocked
+        function checkForNewPuzzles() {
+            const now = new Date();
+            const currentHour = now.getHours();
+            
+            Object.keys(dailyPuzzles).forEach(date => {
+                const puzzleDate = new Date(date);
+                const puzzleHour = puzzleDate.getHours();
+                
+                // If puzzle date has passed and it's after 20:00, unlock it
+                if (puzzleDate <= now && puzzleHour <= 20) {
+                    const square = document.getElementById(`puzzle-${date}`);
+                    if (square && square.classList.contains('locked')) {
+                        square.classList.remove('locked');
+                        const puzzleNumber = Object.keys(dailyPuzzles).indexOf(date) + 1;
+                        square.innerHTML = `<span class="puzzle-number">${puzzleNumber}</span>`;
+                        console.log(`New puzzle unlocked: ${dailyPuzzles[date].country}`);
+                    }
+                }
+            });
+        }
+        
+
+        
+        // Supabase Configuration
+        const SUPABASE_URL = 'https://muqzrfdryzcrsjkpinrx.supabase.co';
+        const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im11cXpyZmRyeXpjcnNqa3BpbnJ4Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTQ5NDM1MjIsImV4cCI6MjA3MDUxOTUyMn0.w7mEQDH8vHrl_PKwWsdwMl0Aa05fVb8IAjZRB9u0Yq8';
+        let supabase = null; // Will be initialized after library loads
+        
+
+        
+        async function initAtlasMinimap() {
+            try {
+                console.log('Starting initAtlasMinimap...');
+                console.log('Current gameMap value:', gameMap);
+                
+                // Wait for Leaflet to be available
+                if (typeof L === 'undefined') {
+                    console.log('Leaflet not available, retrying...');
+                    setTimeout(initAtlasMinimap, 100);
+                    return;
+                }
+                
+                const minimap = document.getElementById('atlas-minimap');
+                if (!minimap) {
+                    console.log('Minimap element not found');
+                    return;
+                }
+                
+                console.log('Minimap element found, proceeding...');
+                
+                // Store the overlay elements before clearing
+                const mapOverlay = minimap.querySelector('.map-overlay');
+                
+                // Clear any existing content
+                minimap.innerHTML = '';
+                
+                // Restore the overlay elements
+                if (mapOverlay) {
+                    minimap.appendChild(mapOverlay);
+                }
+                
+                console.log('About to create Leaflet map...');
+                
+                // Initialize the map
+                gameMap = L.map('atlas-minimap', {
+                    center: [20, 0],
+                    zoom: 2,
+                    zoomControl: false,
+                    attributionControl: false,
+                    dragging: true,
+                    touchZoom: true,
+                    scrollWheelZoom: false,
+                    doubleClickZoom: false,
+                    boxZoom: false,
+                    keyboard: false
+                });
+                
+                console.log('Leaflet map created successfully:', gameMap);
+                
+                // Add OpenStreetMap tiles
+                if (gameMap) {
+                    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                        maxZoom: 19,
+                        attribution: '© OpenStreetMap contributors'
+                    }).addTo(gameMap);
+                }
+                
+                // Load and display GeoJSON countries
+                try {
+                    const response = await fetch('countries.geojson');
+                    gameGeoData = await response.json();
+                    
+                    // Calculate center coordinates for each country
+                    gameGeoData.features.forEach(feature => {
+                        const countryName = feature.properties.name || feature.properties.ADMIN || feature.properties.NAME || 'Unknown';
+                        const coordinates = feature.geometry.coordinates;
+                        
+                        if (feature.geometry.type === 'Polygon') {
+                            // For single polygon, calculate centroid
+                            const centroid = calculatePolygonCentroid(coordinates[0]);
+                            countryCenters[countryName] = { lat: centroid[1], lng: centroid[0] };
+                        } else if (feature.geometry.type === 'MultiPolygon') {
+                            // For multiple polygons, calculate centroid of the largest one
+                            let largestArea = 0;
+                            let largestCentroid = null;
+                            
+                            coordinates.forEach(polygon => {
+                                const area = calculatePolygonArea(polygon[0]);
+                                if (area > largestArea) {
+                                    largestArea = area;
+                                    largestCentroid = calculatePolygonCentroid(polygon[0]);
+                                }
+                            });
+                            
+                            if (largestCentroid) {
+                                countryCenters[countryName] = { lat: largestCentroid[1], lng: largestCentroid[0] };
+                            }
+                        }
+                    });
+                    
+                    // Style for countries
+                    const countryStyle = {
+                        fillColor: '#e2e8f0',
+                        weight: 1,
+                        opacity: 0.8,
+                        color: '#475569',
+                        fillOpacity: 0.3
+                    };
+                    
+                    // Add countries to map - ensure gameMap is ready
+                    if (gameMap) {
+                        L.geoJSON(gameGeoData, {
+                            style: countryStyle,
+                            onEachFeature: function(feature, layer) {
+                                // Add country name on hover
+                                layer.bindTooltip(feature.properties.name || 'Unknown Country', {
+                                    permanent: false,
+                                    direction: 'top',
+                                    className: 'country-tooltip'
+                                });
+                                
+                                // Store layer reference for game interaction
+                                layer.feature = feature;
+                            }
+                        }).addTo(gameMap);
+                        
+                        console.log('GeoJSON countries loaded successfully');
+                        console.log('Country centers calculated:', Object.keys(countryCenters).length);
+                    }
+                    
+                } catch (geoError) {
+                    console.warn('Could not load GeoJSON, showing basic map:', geoError);
+                    // Map will still work without GeoJSON overlay
+                }
+                
+                // Fit map to container after a short delay
+                setTimeout(() => {
+                    if (gameMap && typeof gameMap.invalidateSize === 'function') {
+                        gameMap.invalidateSize();
+                        
+                        // Initialize the hint game after map is fully ready
+                        initHintGame();
+                    } else {
+                        console.log('Map not ready in setTimeout, retrying...');
+                        setTimeout(() => {
+                            if (gameMap && typeof gameMap.invalidateSize === 'function') {
+                                gameMap.invalidateSize();
+                                initHintGame();
+                            }
+                        }, 100);
+                    }
+                }, 100);
+                
+                console.log('Real Atlas mini-map initialized with OpenStreetMap');
+                
+            } catch (error) {
+                console.error('Error initializing mini-map:', error);
+                const minimap = document.getElementById('atlas-minimap');
+                if (minimap) {
+                    minimap.innerHTML = '<div style="padding: 20px; text-align: center; color: var(--text-secondary);">🌍 Interactive World Map</div>';
+                }
+            }
+        }
+        
+        // Initialize mouse trail system when page loads
+        window.addEventListener('load', () => {
+            console.log('Page loaded, initializing light mouse trail...');
+            new LightMouseTrail();
+            
+            // Initialize Supabase client after library loads
+            if (window.supabase) {
+                supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+                console.log('Supabase client initialized successfully');
+            } else {
+                console.error('Supabase library not loaded');
+            }
+            
+            // Initialize Atlas mini-map (this will also initialize the hint game)
+            initAtlasMinimap();
+            
+            // Load the leaderboard data immediately when page loads
+            loadGlobalLeaderboard();
+            
+            // Initialize daily puzzle system
+            updatePuzzleStatus();
+            
+            // Show puzzle selector based on completion status
+            const puzzleSelector = document.getElementById('puzzle-selector');
+            if (puzzleSelector && shouldShowPuzzleSelector()) {
+                puzzleSelector.style.display = 'flex';
+                console.log('Puzzle selector shown on page load');
+            }
+            
+            // Set default puzzle to today's puzzle
+            const today = getTodayDate();
+            if (dailyPuzzles[today]) {
+                selectPuzzle(today);
+            } else {
+                // Fallback to current puzzle
+                selectPuzzle('2025-08-21');
+            }
+            
+            // Show login status
+            showLoginStatus();
+            
+            // Update submission form visibility
+            updateSubmissionFormVisibility();
+            
+            // Populate flag selector for initial display
+            populateFlagSelector();
+        });
+        
+        function initHintGame() {
+            // Add click handler to map for guessing
+            if (gameMap && typeof gameMap.on === 'function') {
+                gameMap.on('click', handleMapClick);
+                console.log('Map click handler initialized');
+            } else {
+                console.log('Map not ready yet, retrying in 100ms...');
+                setTimeout(initHintGame, 100);
+            }
+        }
+        
+        function startNewGame() {
+            // Don't override currentCountry - use the one already set by selectPuzzle
+            // currentCountry should already be set to the selected puzzle's country
+            console.log('startNewGame called - currentCountry before:', currentCountry);
+            
+            if (!currentCountry) {
+                // Fallback to default if somehow no country is selected
+                currentCountry = 'United States of America';
+                console.warn('No country selected, using default fallback');
+            }
+            
+            console.log('startNewGame - currentCountry after:', currentCountry);
+            
+            gameActive = true;
+            startTime = Date.now();
+            
+            // Reset flag selection for new game
+            window.selectedPlayerFlag = null;
+            const selectedFlags = document.querySelectorAll('.flag-option.selected');
+            selectedFlags.forEach(flag => flag.classList.remove('selected'));
+            
+            // Reset game result when starting a new game
+            currentGameResult = null;
+            
+            // Update UI with safety checks
+            const timerOverlay = document.getElementById('timer-overlay');
+            const directionText = document.getElementById('direction-text');
+            const instructionsOverlay = document.querySelector('.instructions-overlay');
+            
+            if (timerOverlay) timerOverlay.style.display = 'block';
+            if (directionText) directionText.textContent = 'Keep guessing!';
+            if (instructionsOverlay) instructionsOverlay.classList.add('game-started');
+            
+            // Start timer
+            startTimer();
+            
+            // Reset map styling
+            resetMapStyling();
+            
+            console.log('New game started. Country:', currentCountry);
+            console.log('Game state - currentCountry:', currentCountry, 'gameActive:', gameActive);
+        }
+        
+        function startTimer() {
+            gameTimer = setInterval(() => {
+                if (gameActive) {
+                    const elapsed = Date.now() - startTime;
+                    const seconds = Math.floor(elapsed / 1000);
+                    const minutes = Math.floor(seconds / 60);
+                    const remainingSeconds = seconds % 60;
+                    const milliseconds = elapsed % 1000;
+                    
+                    const timeString = `${minutes.toString().padStart(2, '0')}:${remainingSeconds.toString().padStart(2, '0')}:${milliseconds.toString().padStart(3, '0')}`;
+                    const timerText = document.getElementById('timer-text');
+                    if (timerText) {
+                        timerText.textContent = timeString;
+                    }
+                }
+            }, 10); // Update every 10ms for smooth millisecond display
+        }
+        
+        // Calculate distance between two points using Haversine formula
+        function calculateDistance(lat1, lon1, lat2, lon2) {
+            const R = 6371; // Earth's radius in kilometers
+            const dLat = (lat2 - lat1) * Math.PI / 180;
+            const dLon = (lon2 - lon1) * Math.PI / 180;
+            const a = Math.sin(dLat/2) * Math.sin(dLat/2) +
+                      Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) *
+                      Math.sin(dLon/2) * Math.sin(dLon/2);
+            const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+            return R * c;
+        }
+        
+        // Get color based on distance
+        function getDistanceColor(distance) {
+            if (distance < 500) return '#166534'; // Extremely close - Very dark green
+            if (distance < 1000) return '#22c55e'; // Very close - Dark green
+            if (distance < 2000) return '#4ade80'; // Close - Light green
+            if (distance < 3000) return '#a3e635'; // Medium close - Lime green
+            if (distance < 5000) return '#fbbf24'; // Medium - Yellow
+            if (distance < 7000) return '#f97316'; // Far - Orange
+            if (distance < 9000) return '#ef4444'; // Very far - Red
+            if (distance < 12000) return '#dc2626'; // Extremely far - Dark red
+            return '#7f1d1d'; // Ultra far - Very dark red
+        }
+        
+        function handleMapClick(e) {
+            const clickedLat = e.latlng.lat;
+            const clickedLng = e.latlng.lng;
+            
+            // Find which country was clicked
+            const clickedCountry = findCountryAtPoint(clickedLat, clickedLng);
+            
+            if (clickedCountry) {
+                // If game not started, start it
+                if (!gameActive) {
+                    startNewGame();
+                    return;
+                }
+                
+                console.log(`Clicked: ${clickedCountry}, Target: ${currentCountry}`);
+                if (clickedCountry === currentCountry) {
+                    // Correct guess!
+                    correctGuess(clickedCountry);
+                } else {
+                    // Wrong guess - color based on distance
+                    const targetCenter = countryCenters[currentCountry];
+                    if (targetCenter) {
+                        const distance = calculateDistance(
+                            clickedLat, clickedLng,
+                            targetCenter.lat, targetCenter.lng
+                        );
+                        const color = getDistanceColor(distance);
+                        
+                        // Color the clicked country based on distance
+                        highlightCountry(clickedCountry, color);
+                        
+                        // Show distance info
+                        showDistanceInfo(clickedCountry, distance);
+                        
+                        // Show direction arrow
+                        showDirectionArrow(clickedLat, clickedLng, targetCenter.lat, targetCenter.lng);
+                    }
+                }
+            }
+        }
+        
+        function findCountryAtPoint(lat, lng) {
+            if (!gameGeoData) return null;
+            
+            for (let feature of gameGeoData.features) {
+                if (feature.geometry && feature.geometry.type === 'Polygon') {
+                    if (isPointInPolygon([lng, lat], feature.geometry.coordinates[0])) {
+                        return feature.properties.name;
+                    }
+                } else if (feature.geometry && feature.geometry.type === 'MultiPolygon') {
+                    for (let polygon of feature.geometry.coordinates) {
+                        if (isPointInPolygon([lng, lat], polygon[0])) {
+                            return feature.properties.name;
+                        }
+                    }
+                }
+            }
+            return null;
+        }
+        
+        function isPointInPolygon(point, polygon) {
+            const x = point[0], y = point[1];
+            let inside = false;
+            
+            for (let i = 0, j = polygon.length - 1; i < polygon.length; j = i++) {
+                const xi = polygon[i][0], yi = polygon[i][1];
+                const xj = polygon[j][0], yj = polygon[j][1];
+                
+                if (((yi > y) !== (yj > y)) && (x < (xj - xi) * (y - yi) / (yj - yi) + xi)) {
+                    inside = !inside;
+                }
+            }
+            return inside;
+        }
+        
+        function correctGuess(country) {
+            // Stop timer
+            clearInterval(gameTimer);
+            gameActive = false;
+            
+            // Calculate final time
+            const finalTime = Date.now() - startTime;
+            const timeInSeconds = Math.floor(finalTime / 1000);
+            
+            // Calculate score based on time
+            const score = calculateScore(timeInSeconds);
+            
+            // Mark the selected puzzle as completed
+            // Find which puzzle date corresponds to the current country
+            let puzzleDateToMark = null;
+            for (const [date, puzzle] of Object.entries(dailyPuzzles)) {
+                if (puzzle.country === currentCountry) {
+                    puzzleDateToMark = date;
+                    break;
+                }
+            }
+            
+            if (puzzleDateToMark) {
+                markPuzzleCompleted(puzzleDateToMark);
+                
+                // Start countdown for next puzzle immediately
+
+            }
+            
+            // Store current game result
+            currentGameResult = {
+                country: country,
+                time: timeInSeconds,
+                score: score,
+                date: new Date().toLocaleDateString(),
+                timestamp: Date.now()
+            };
+            
+            // Highlight correct country on map
+            highlightCountry(country, '#10b981');
+            
+            // Show success message in console
+            console.log(`🎉 Correct! It's ${country}! Time: ${timeInSeconds}s`);
+            
+            // Trigger confetti effect
+            triggerConfetti();
+            
+            // Ensure puzzle selector is visible when puzzle is completed
+            const puzzleSelector = document.getElementById('puzzle-selector');
+            if (puzzleSelector) {
+                puzzleSelector.style.display = 'flex';
+                console.log('Puzzle selector confirmed visible after completion');
+            }
+            
+            // Show results containers
+            showResults();
+            
+            // Show restart instructions
+            setTimeout(() => {
+                const directionText = document.getElementById('direction-text');
+                if (directionText) {
+                    directionText.textContent = 'Click any country to play again';
+                }
+                
+                // Don't reset currentGameResult here - it will be reset after score submission
+            }, 2000);
+            
+            console.log('Correct guess!');
+        }
+        
+        function showDistanceInfo(country, distance) {
+            console.log(`${country} is ${Math.round(distance)} km away from the target`);
+        }
+        
+        function testConfetti() {
+            console.log('Testing confetti manually...');
+            triggerConfetti();
+        }
+        
+        function testCountdown() {
+            console.log('Testing countdown manually...');
+
+        }
+        
+        async function testDuplicateCheck() {
+            console.log('Testing duplicate check...');
+            const playerName = document.getElementById('player-name')?.value.trim();
+            const country = currentGameResult?.country;
+            
+            if (!playerName || !country) {
+                console.log('No player name or country available');
+                return;
+            }
+            
+            console.log('Checking for:', { playerName, country });
+            
+            try {
+                const { data: existingScores, error } = await supabase
+                    .from('leaderboard')
+                    .select('*')
+                    .eq('player_name', playerName)
+                    .eq('country', country);
+                
+                console.log('Duplicate check result:', { existingScores, error, count: existingScores?.length || 0 });
+            } catch (error) {
+                console.error('Error in duplicate check:', error);
+            }
+        }
+        
+        function showPuzzleSelector() {
+            const puzzleSelector = document.getElementById('puzzle-selector');
+            if (puzzleSelector) {
+                puzzleSelector.style.display = 'flex';
+                console.log('Puzzle selector manually shown');
+            } else {
+                console.log('Puzzle selector element not found');
+            }
+        }
+        
+        function hidePuzzleSelector() {
+            const puzzleSelector = document.getElementById('puzzle-selector');
+            if (puzzleSelector) {
+                puzzleSelector.style.display = 'none';
+                console.log('Puzzle selector manually hidden');
+            } else {
+                console.log('Puzzle selector element not found');
+            }
+        }
+        
+        function forceShowPuzzleSelector() {
+            const puzzleSelector = document.getElementById('puzzle-selector');
+            if (puzzleSelector) {
+                puzzleSelector.style.display = 'flex';
+                // Save preference to always show
+                localStorage.setItem('alwaysShowPuzzleSelector', 'true');
+                console.log('Puzzle selector force shown and preference saved');
+            } else {
+                console.log('Puzzle selector element not found');
+            }
+        }
+        
+        function checkPuzzleSelectorStatus() {
+            const puzzleSelector = document.getElementById('puzzle-selector');
+            const isVisible = puzzleSelector && puzzleSelector.style.display !== 'none';
+            const hasCompleted = hasAnyPuzzleBeenCompleted();
+            const alwaysShow = localStorage.getItem('alwaysShowPuzzleSelector') === 'true';
+            
+            console.log('Puzzle Selector Status:', {
+                elementExists: !!puzzleSelector,
+                isVisible: isVisible,
+                hasCompleted: hasCompleted,
+                alwaysShowPreference: alwaysShow,
+                shouldShow: shouldShowPuzzleSelector()
+            });
+            
+            return { isVisible, hasCompleted, alwaysShow };
+        }
+        
+
+        
+        // Function to show countdown for locked puzzle
+        function showLockedPuzzleCountdown(date, puzzle) {
+            // Calculate time until puzzle unlocks
+            // The puzzle unlocks at 20:00 (8 PM) on the specified date
+            const puzzleDate = new Date(date);
+            puzzleDate.setHours(20, 0, 0, 0); // Set to 20:00 on puzzle date
+            
+            const now = new Date();
+            const timeUntilUnlock = puzzleDate.getTime() - now.getTime();
+            
+            if (timeUntilUnlock <= 0) {
+                // Puzzle should be unlocked
+                alert('This puzzle should be available now! Please refresh the page.');
+                return;
+            }
+            
+            // Show countdown text in the puzzle square
+            const puzzleSquare = document.getElementById(`puzzle-${date}`);
+            
+            if (puzzleSquare) {
+                // Start countdown timer and update the square content
+                startLockedPuzzleCountdown(date, timeUntilUnlock, puzzleSquare);
+            } else {
+                console.error('Puzzle square not found for date:', date);
+            }
+        }
+        
+        // Function to start countdown timer for locked puzzle
+        function startLockedPuzzleCountdown(date, initialTime, puzzleSquare) {
+            let timeRemaining = initialTime;
+            
+            const countdownInterval = setInterval(() => {
+                if (timeRemaining <= 0) {
+                    clearInterval(countdownInterval);
+                    // Puzzle is now available
+                    puzzleSquare.innerHTML = '<span class="puzzle-number">🎉</span>';
+                    puzzleSquare.title = 'Puzzle is now available!';
+                    puzzleSquare.classList.remove('locked');
+                    puzzleSquare.classList.add('available');
+                    return;
+                }
+                
+                // Calculate time units
+                const days = Math.floor(timeRemaining / (1000 * 60 * 60 * 24));
+                const hours = Math.floor((timeRemaining % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+                const minutes = Math.floor((timeRemaining % (1000 * 60 * 60)) / (1000 * 60));
+                const seconds = Math.floor((timeRemaining % (1000 * 60)) / 1000);
+                
+                // Create countdown text with seconds
+                let countdownText = '';
+                if (days > 0) {
+                    countdownText = `${days}d ${hours}h ${minutes}m ${seconds}s`;
+                } else if (hours > 0) {
+                    countdownText = `${hours}h ${minutes}m ${seconds}s`;
+                } else if (minutes > 0) {
+                    countdownText = `${minutes}m ${seconds}s`;
+                } else {
+                    countdownText = `${seconds}s`;
+                }
+                
+                // Update the puzzle square with countdown
+                puzzleSquare.innerHTML = `<span class="puzzle-number">⏰</span>`;
+                puzzleSquare.title = `Available in ${countdownText}`;
+                
+                timeRemaining -= 1000; // Decrease by 1 second
+            }, 1000);
+        }
+        
+
+        
+        async function showResults() {
+            // Ensure puzzle selector is visible (it should already be shown from correctGuess)
+            const puzzleSelector = document.getElementById('puzzle-selector');
+            if (puzzleSelector) {
+                puzzleSelector.style.display = 'flex';
+            }
+            
+            // Show the score submission section
+            const scoreSubmission = document.getElementById('score-submission');
+            if (scoreSubmission) {
+                scoreSubmission.style.display = 'block';
+            }
+            
+            // Update form visibility based on login status
+            updateSubmissionFormVisibility();
+            
+            // Load the leaderboard
+            loadGlobalLeaderboard();
+            
+            // Update puzzle status to show submission states
+            await updatePuzzleStatus();
+            
+            // Show and scroll to the leaderboard section
+            const leaderboardSection = document.getElementById('leaderboard-section');
+            if (leaderboardSection) {
+                leaderboardSection.style.display = 'block';
+                leaderboardSection.scrollIntoView({ 
+                    behavior: 'smooth', 
+                    block: 'start' 
+                });
+            }
+        }
+        
+        // Function to show leaderboard section (for when no game has been played)
+        function showLeaderboardSection() {
+            const leaderboardSection = document.getElementById('leaderboard-section');
+            if (leaderboardSection) {
+                leaderboardSection.style.display = 'block';
+            }
+        }
+        
+
+        
+
+        
+
+        
+
+        
+        function triggerConfetti() {
+            console.log('Triggering confetti...');
+            console.log('tsParticles available:', typeof tsParticles);
+            console.log('tsParticles object:', tsParticles);
+            
+            if (typeof tsParticles !== 'undefined') {
+                console.log('Loading particles...');
+                try {
+                    tsParticles.load({
+                    id: "tsparticles",
+                    options: {
+                        "fullScreen": {
+                            "zIndex": 1
+                        },
+                        "emitters": [
+                            {
+                                "position": {
+                                    "x": 0,
+                                    "y": 30
+                                },
+                                "rate": {
+                                    "quantity": 10,
+                                    "delay": 0.15
+                                },
+                                "particles": {
+                                    "move": {
+                                        "direction": "top-right",
+                                        "outModes": {
+                                            "top": "none",
+                                            "left": "none",
+                                            "default": "destroy"
+                                        }
+                                    }
+                                }
+                            },
+                            {
+                                "position": {
+                                    "x": 100,
+                                    "y": 30
+                                },
+                                "rate": {
+                                    "quantity": 5,
+                                    "delay": 0.15
+                                },
+                                "particles": {
+                                    "move": {
+                                        "direction": "top-left",
+                                        "outModes": {
+                                            "top": "none",
+                                            "right": "none",
+                                            "default": "destroy"
+                                        }
+                                    }
+                                }
+                            }
+                        ],
+                        "particles": {
+                            "color": {
+                                "value": [
+                                    "#ffffff",
+                                    "#FF0000"
+                                ]
+                            },
+                            "move": {
+                                "decay": 0.05,
+                                "direction": "top",
+                                "enable": true,
+                                "gravity": {
+                                    "enable": true
+                                },
+                                "outModes": {
+                                    "top": "none",
+                                    "default": "destroy"
+                                },
+                                "speed": {
+                                    "min": 10,
+                                    "max": 50
+                                }
+                            },
+                            "number": {
+                                "value": 0
+                            },
+                            "opacity": {
+                                "value": 1
+                            },
+                            "rotate": {
+                                "value": {
+                                    "min": 0,
+                                    "max": 360
+                                },
+                                "direction": "random",
+                                "animation": {
+                                    "enable": true,
+                                    "speed": 30
+                                }
+                            },
+                            "tilt": {
+                                "direction": "random",
+                                "enable": true,
+                                "value": {
+                                    "min": 0,
+                                    "max": 360
+                                },
+                                "animation": {
+                                    "enable": true,
+                                    "speed": 30
+                                }
+                            },
+                            "size": {
+                                "value": {
+                                    "min": 0,
+                                    "max": 3
+                                },
+                                "animation": {
+                                    "enable": true,
+                                    "startValue": "min",
+                                    "count": 1,
+                                    "speed": 16,
+                                    "sync": true
+                                }
+                            },
+                            "roll": {
+                                "darken": {
+                                    "enable": true,
+                                    "value": 25
+                                },
+                                "enable": true,
+                                "speed": {
+                                    "min": 5,
+                                    "max": 15
+                                }
+                            },
+                            "wobble": {
+                                "distance": 30,
+                                "enable": true,
+                                "speed": {
+                                    "min": -7,
+                                    "max": "7"
+                                }
+                            },
+                            "shape": {
+                                "type": [
+                                    "circle",
+                                    "square"
+                                ],
+                                "options": {}
+                            }
+                        }
+                    }
+                }).then((container) => {
+                    console.log('Particles loaded successfully!');
+                    
+                    // Stop confetti after 3 seconds
+                    setTimeout(() => {
+                        try {
+                            // Simple cleanup - just destroy the container
+                            if (container && typeof container.destroy === 'function') {
+                                container.destroy();
+                                console.log('Confetti stopped and cleaned up');
+                            } else if (container && container.stop) {
+                                // Alternative cleanup method
+                                container.stop();
+                                console.log('Confetti stopped using stop method');
+                            } else {
+                                // Fallback - hide the container
+                                const tsparticlesDiv = document.getElementById('tsparticles');
+                                if (tsparticlesDiv) {
+                                    tsparticlesDiv.innerHTML = '';
+                                    console.log('Confetti container cleared');
+                                }
+                            }
+                        } catch (error) {
+                            console.log('Error during confetti cleanup:', error);
+                            // Final fallback - clear the container
+                            const tsparticlesDiv = document.getElementById('tsparticles');
+                            if (tsparticlesDiv) {
+                                tsparticlesDiv.innerHTML = '';
+                            }
+                        }
+                    }, 3000);
+                    
+                }).catch((error) => {
+                    console.error('Error loading particles:', error);
+                });
+                } catch (error) {
+                    console.error('Error in triggerConfetti:', error);
+                }
+            } else {
+                console.log('tsParticles library not loaded');
+            }
+        }
+        
+        function showDirectionArrow(clickedLat, clickedLng, targetLat, targetLng) {
+            const directionText = document.getElementById('direction-text');
+            
+            if (!directionText) return; // Safety check
+            
+            // Calculate direction based on coordinates
+            const latDiff = targetLat - clickedLat;
+            const lngDiff = targetLng - clickedLng;
+            
+            let direction = '';
+            
+            // Determine primary direction (latitudinal vs longitudinal)
+            if (Math.abs(latDiff) > Math.abs(lngDiff)) {
+                // More north/south difference
+                if (latDiff > 0) {
+                    direction = '↑ North';
+                } else {
+                    direction = '↓ South';
+                }
+            } else {
+                // More east/west difference
+                if (lngDiff > 0) {
+                    direction = '→ East';
+                } else {
+                    direction = '← West';
+                }
+            }
+            
+            // Add secondary direction if significant
+            if (Math.abs(latDiff) > 0.5 && Math.abs(lngDiff) > 0.5) {
+                if (latDiff > 0 && lngDiff > 0) {
+                    direction = '↗ Northeast';
+                } else if (latDiff > 0 && lngDiff < 0) {
+                    direction = '↖ Northwest';
+                } else if (latDiff < 0 && lngDiff > 0) {
+                    direction = '↘ Southeast';
+                } else {
+                    direction = '↙ Southwest';
+                }
+            }
+            
+            directionText.textContent = direction;
+        }
+        
+
+        
+        function highlightCountry(countryName, color) {
+            if (!gameMap || !gameGeoData || typeof gameMap.eachLayer !== 'function') return;
+            
+            // Find and highlight the country
+            gameMap.eachLayer((layer) => {
+                if (layer.feature && 
+                    (layer.feature.properties.name === countryName || 
+                     layer.feature.properties.ADMIN === countryName || 
+                     layer.feature.properties.NAME === countryName)) {
+                    layer.setStyle({
+                        fillColor: color,
+                        fillOpacity: 0.7,
+                        weight: 2
+                    });
+                }
+            });
+        }
+        
+        function resetMapStyling() {
+            if (!gameMap || typeof gameMap.eachLayer !== 'function') return;
+            
+            gameMap.eachLayer((layer) => {
+                if (layer.feature) {
+                    layer.setStyle({
+                        fillColor: '#e2e8f0',
+                        fillOpacity: 0.3,
+                        weight: 1
+                    });
+                }
+            });
+        }
+        
+        function resetGame(keepCountry = false) {
+            gameActive = false;
+            
+            // Only clear currentCountry if we're not keeping it (for puzzle selection)
+            if (!keepCountry) {
+                currentCountry = null;
+            }
+            
+            // Stop timer
+            if (gameTimer) {
+                clearInterval(gameTimer);
+                gameTimer = null;
+            }
+            
+            // Reset UI with safety checks
+            const timerOverlay = document.getElementById('timer-overlay');
+            const directionText = document.getElementById('direction-text');
+            const instructionsOverlay = document.querySelector('.instructions-overlay');
+            
+            if (timerOverlay) timerOverlay.style.display = 'none';
+            if (directionText) directionText.textContent = 'Click any country to start';
+            if (instructionsOverlay) instructionsOverlay.classList.remove('game-started');
+            
+            // Reset map
+            resetMapStyling();
+        }
+        
+
+        
+        // Helper functions for polygon calculations
+        function calculatePolygonCentroid(coordinates) {
+            let area = 0;
+            let centroidX = 0;
+            let centroidY = 0;
+            
+            for (let i = 0; i < coordinates.length - 1; i++) {
+                const cross = coordinates[i][0] * coordinates[i + 1][1] - coordinates[i + 1][0] * coordinates[i][1];
+                area += cross;
+                centroidX += (coordinates[i][0] + coordinates[i + 1][0]) * cross;
+                centroidY += (coordinates[i][1] + coordinates[i + 1][1]) * cross;
+            }
+            
+            area /= 2;
+            const factor = 1 / (6 * area);
+            
+            return [
+                factor * centroidX,
+                factor * centroidY
+            ];
+        }
+        
+        function calculatePolygonArea(coordinates) {
+            let area = 0;
+            
+            for (let i = 0; i < coordinates.length - 1; i++) {
+                area += coordinates[i][0] * coordinates[i + 1][1];
+                area -= coordinates[i + 1][0] * coordinates[i][1];
+            }
+            
+            return Math.abs(area) / 2;
+        }
+        async function loadGlobalLeaderboard() {
+            if (!supabase) {
+                console.error('Supabase client not initialized');
+                populateGlobalLeaderboard([]);
+                return;
+            }
+            
+            try {
+                const { data, error } = await supabase
+                    .from('leaderboard')
+                    .select('*')
+                    .order('time', { ascending: true })
+                    .limit(10);
+                
+                if (error) {
+                    if (error.code === 'PGRST205') {
+                        console.log('Leaderboard table does not exist yet. Please create it in Supabase dashboard.');
+                        populateGlobalLeaderboard([]);
+                        return;
+                    }
+                    throw error;
+                }
+                
+                populateGlobalLeaderboard(data || []);
+            } catch (error) {
+                console.error('Error loading leaderboard:', error);
+                populateGlobalLeaderboard([]);
+            }
+        }
+        
+        function populateGlobalLeaderboard(leaderboardData) {
+            const leaderboardElement = document.getElementById('leaderboard');
+            if (!leaderboardElement) return;
+            
+            leaderboardElement.innerHTML = '';
+            
+            if (leaderboardData.length === 0) {
+                leaderboardElement.innerHTML = '<p style="text-align: center; color: var(--text-secondary);">No scores yet</p>';
+                return;
+            }
+            
+            // Group entries by player to count games, get best scores, and calculate total scores
+            const playerStats = {};
+            leaderboardData.forEach(entry => {
+                if (!playerStats[entry.player_name]) {
+                    playerStats[entry.player_name] = {
+                        name: entry.player_name,
+                        player_flag: entry.player_flag || '🌍',
+                        bestScore: entry.score,
+                        bestTime: entry.time,
+                        totalScore: entry.score,
+                        country: entry.country,
+                        gameCount: 1,
+                        lastPlayed: entry.date
+                    };
+                } else {
+                    playerStats[entry.player_name].gameCount++;
+                    playerStats[entry.player_name].totalScore += entry.score;
+                    if (entry.score > playerStats[entry.player_name].bestScore) {
+                        playerStats[entry.player_name].bestScore = entry.score;
+                        playerStats[entry.player_name].bestTime = entry.time;
+                        playerStats[entry.player_name].country = entry.country;
+                        playerStats[entry.player_name].lastPlayed = entry.date;
+                    }
+                }
+            });
+            
+            // Convert to array and sort by total score (highest first)
+            const sortedPlayers = Object.values(playerStats).sort((a, b) => b.totalScore - a.totalScore);
+            
+            sortedPlayers.forEach((player, index) => {
+                const leaderboardEntry = document.createElement('div');
+                leaderboardEntry.className = 'leaderboard-entry';
+                const medal = index < 3 ? ['🥇', '🥈', '🥉'][index] : `${index + 1}.`;
+                
+                leaderboardEntry.innerHTML = `
+                    <div style="display: flex; justify-content: space-between; align-items: center;">
+                        <div style="display: flex; align-items: center;">
+                            <span class="medal">${medal}</span>
+                            <span class="country-flag">${player.player_flag}</span>
+                            <div class="player-info">
+                                <strong>${player.name}</strong>
+                                <div style="font-size: 0.9rem; color: var(--text-secondary);">
+                                   Total: ${player.gameCount} game${player.gameCount > 1 ? 's' : ''} • Last Played: ${player.lastPlayed}
+                                </div>
+                            </div>
+                        </div>
+                        <div class="score-info">
+                            <div style="font-size: 1.2rem; font-weight: bold; color: var(--accent-color);">
+                                ${player.totalScore} pts
+                            </div>
+                            <div style="font-size: 0.9rem; color: var(--text-secondary);">
+                                Best: ${player.bestScore} pts • ${player.bestTime}s
+                            </div>
+                        </div>
+                    </div>
+                `;
+                leaderboardElement.appendChild(leaderboardEntry);
+            });
+        }
+        
+        async function submitScore() {
+            if (!supabase) {
+                alert('Leaderboard service not available. Please refresh the page and try again.');
+                return;
+            }
+            
+            if (!currentGameResult) {
+                alert('No game result to submit! Please play the game first.');
+                return;
+            }
+            
+            // Check if user is logged in
+            let userLogin = getUserLogin();
+            if (!userLogin) {
+                // First time user - get name and flag
+                const playerName = document.getElementById('player-name').value.trim();
+                const playerFlag = window.selectedPlayerFlag;
+                
+                if (!playerName) {
+                    alert('Please enter your name!');
+                    return;
+                }
+                
+                if (!playerFlag) {
+                    alert('Please select a flag to represent your country!');
+                    return;
+                }
+                
+                // Save user login info
+                saveUserLogin(playerName, playerFlag);
+                userLogin = { playerName, playerFlag };
+            }
+            
+            // Get submit button reference
+            const submitBtn = document.querySelector('.submit-score-btn');
+            if (!submitBtn) {
+                alert('Submit button not found. Please refresh the page.');
+                return;
+            }
+            
+            // Check if this device has already submitted a score for this country
+            try {
+                const { data: existingScores, error: checkError } = await supabase
+                    .from('leaderboard')
+                    .select('*')
+                    .eq('player_name', userLogin.playerName)
+                    .eq('country', currentGameResult.country);
+                
+                if (checkError) {
+                    console.error('Error checking existing scores:', checkError);
+                    alert('Error checking for duplicate submissions. Please try again.');
+                    return;
+                } else if (existingScores && existingScores.length > 0) {
+                    alert(`You have already submitted a score for ${currentGameResult.country}! You can replay the puzzle, but only your first submission counts for the leaderboard.`);
+                    return;
+                }
+            } catch (error) {
+                console.error('Error checking for duplicate submissions:', error);
+                alert('Error checking for duplicate submissions. Please try again.');
+                return;
+            }
+            
+            // Disable submit button and show submitting state
+            submitBtn.disabled = true;
+            submitBtn.textContent = 'Submitting...';
+            
+            try {
+                // Format data properly for Supabase
+                const scoreData = {
+                    player_name: userLogin.playerName,
+                    player_flag: userLogin.playerFlag,
+                    country: currentGameResult.country,
+                    time: parseInt(currentGameResult.time),
+                    score: parseInt(currentGameResult.score),
+                    date: currentGameResult.date,
+                    timestamp: new Date(currentGameResult.timestamp).toISOString()
+                };
+                
+                const { data, error } = await supabase
+                    .from('leaderboard')
+                    .insert([scoreData]);
+                
+                if (error) {
+                    if (error.code === 'PGRST205') {
+                        alert('Leaderboard service not available. Please refresh the page and try again.');
+                        submitBtn.disabled = false;
+                        submitBtn.textContent = 'Submit Score';
+                        return;
+                    }
+                    
+                    // Handle missing column errors
+                    if (error.message && error.message.includes('device_id')) {
+                        alert('Leaderboard service configuration error. Please contact support.');
+                        submitBtn.disabled = false;
+                        submitBtn.textContent = 'Submit Score';
+                        return;
+                    }
+                    
+                    console.error('Supabase error details:', error);
+                    throw error;
+                }
+                
+                // Reload leaderboard to show new score
+                await loadGlobalLeaderboard();
+                
+                // Show success
+                submitBtn.textContent = 'Score Submitted!';
+                submitBtn.style.background = '#10b981';
+                
+                // Hide the score submission section after successful submission
+                const scoreSubmission = document.getElementById('score-submission');
+                if (scoreSubmission) {
+                    scoreSubmission.style.display = 'none';
+                }
+                
+                setTimeout(() => {
+                    submitBtn.disabled = false;
+                    submitBtn.textContent = 'Submit Score';
+                    submitBtn.style.background = '';
+                }, 2000);
+                
+            } catch (error) {
+                console.error('Error submitting score:', error);
+                
+                let errorMessage = 'Error submitting score. Please try again.';
+                if (error.message) {
+                    errorMessage = `Error: ${error.message}`;
+                } else if (error.details) {
+                    errorMessage = `Error: ${error.details}`;
+                }
+                
+                alert(errorMessage);
+                submitBtn.disabled = false;
+                submitBtn.textContent = 'Submit Score';
+            }
+        }
+    </script>
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/tsparticles@2.12.0/tsparticles.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+</body>
+</html>
