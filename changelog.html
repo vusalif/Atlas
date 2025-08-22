@@ -1,0 +1,287 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Changelog - Atlas Geography Learning Platform | Version History & Updates</title>
+    
+    <!-- SEO Meta Tags -->
+    <meta name="description" content="Track Atlas geography learning platform updates and new features. View version history, improvements, and latest developments in our interactive geography education tools.">
+    <meta name="keywords" content="changelog, version history, Atlas updates, geography learning features, educational platform updates, new features, geography games updates, Atlas development">
+    <meta name="author" content="Atlas Team">
+    <meta name="robots" content="index, follow">
+    <meta name="language" content="English">
+    <meta name="revisit-after" content="7 days">
+    
+    <!-- Favicons -->
+    <link rel="icon" type="image/png" sizes="48x48" href="icon48x48.png">
+    <link rel="icon" type="image/png" sizes="512x512" href="icon512x512.png">
+    <link rel="apple-touch-icon" href="icon512x512.png">
+    
+    <!-- Open Graph Meta Tags -->
+    <meta property="og:title" content="Changelog - Atlas">
+    <meta property="og:description" content="Track the latest updates and improvements to Atlas geography games">
+    <meta property="og:image" content="preview.png">
+    <meta property="og:url" content="">
+    <meta property="og:type" content="website">
+    <meta property="og:site_name" content="Atlas">
+    
+    <!-- Canonical tag -->
+    <link rel="canonical" href="https://atlas.killmytime.fun/changelog.html">
+    
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            background: #f8fafc;
+        }
+        
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 2rem;
+            background: white;
+            min-height: 100vh;
+            box-shadow: 0 0 20px rgba(0,0,0,0.1);
+        }
+        
+        .header {
+            text-align: center;
+            margin-bottom: 3rem;
+            padding-bottom: 2rem;
+            border-bottom: 2px solid #e2e8f0;
+        }
+        
+        .header h1 {
+            color: #1e293b;
+            font-size: 2.5rem;
+            margin-bottom: 1rem;
+        }
+        
+        .header p {
+            color: #64748b;
+            font-size: 1.1rem;
+        }
+        
+        .version {
+            margin-bottom: 3rem;
+            padding: 2rem;
+            border: 1px solid #e2e8f0;
+            border-radius: 8px;
+            background: #fafafa;
+        }
+        
+        .version-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+            padding-bottom: 1rem;
+            border-bottom: 1px solid #e2e8f0;
+        }
+        
+        .version-number {
+            font-size: 1.5rem;
+            font-weight: 600;
+            color: #1e293b;
+        }
+        
+        .version-date {
+            color: #64748b;
+            font-size: 0.9rem;
+        }
+        
+        .change-category {
+            margin-bottom: 1.5rem;
+        }
+        
+        .category-title {
+            font-weight: 600;
+            color: #334155;
+            margin-bottom: 0.8rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        
+        .category-title.new::before {
+            content: "🆕";
+        }
+        
+        .category-title.improved::before {
+            content: "✨";
+        }
+        
+        .category-title.fixed::before {
+            content: "🐛";
+        }
+        
+        .category-title.security::before {
+            content: "🔒";
+        }
+        
+        .change-list {
+            list-style: none;
+            margin-left: 1rem;
+        }
+        
+        .change-list li {
+            margin-bottom: 0.5rem;
+            padding-left: 1rem;
+            position: relative;
+        }
+        
+        .change-list li::before {
+            content: "•";
+            color: #3b82f6;
+            font-weight: bold;
+            position: absolute;
+            left: 0;
+        }
+        
+        .back-link {
+            display: inline-block;
+            margin-top: 2rem;
+            padding: 0.75rem 1.5rem;
+            background: #1e293b;
+            color: white;
+            text-decoration: none;
+            border-radius: 6px;
+            transition: background 0.3s ease;
+        }
+        
+        .back-link:hover {
+            background: #334155;
+        }
+        
+        .highlight {
+            background: #f0f9ff;
+            border: 1px solid #0ea5e9;
+            border-radius: 6px;
+            padding: 1rem;
+            margin: 1rem 0;
+        }
+        
+        @media (max-width: 768px) {
+            .container {
+                padding: 1rem;
+            }
+            
+            .version-header {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 0.5rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header class="header">
+            <h1>Changelog</h1>
+            <p>Track the latest updates and improvements to Atlas</p>
+        </header>
+        
+        <div class="version">
+            <div class="version-header">
+                <span class="version-number">Version 2.0.0</span>
+                <span class="version-date">December 19, 2024</span>
+            </div>
+            
+            <div class="change-category">
+                <div class="category-title new">New Features</div>
+                <ul class="change-list">
+                    <li>Added comprehensive favicon support for all pages</li>
+                    <li>Implemented Open Graph meta tags for better social media sharing</li>
+                    <li>Created privacy policy page for user transparency</li>
+                    <li>Added changelog to track website evolution</li>
+                    <li>Implemented robots.txt and sitemap.xml for SEO</li>
+                    <li>Added 404 error page for better user experience</li>
+                </ul>
+            </div>
+            
+            <div class="change-category">
+                <div class="category-title improved">Improvements</div>
+                <ul class="change-list">
+                    <li>Enhanced accessibility with ARIA labels and keyboard navigation</li>
+                    <li>Added canonical tags to prevent duplicate content issues</li>
+                    <li>Improved performance with optimized image loading</li>
+                    <li>Enhanced mobile responsiveness across all game modes</li>
+                    <li>Better error handling and user feedback</li>
+                </ul>
+            </div>
+            
+            <div class="change-category">
+                <div class="category-title fixed">Bug Fixes</div>
+                <ul class="change-list">
+                    <li>Fixed image loading issues in some browsers</li>
+                    <li>Resolved mobile touch interaction problems</li>
+                    <li>Fixed leaderboard display issues</li>
+                    <li>Corrected map rendering on high-DPI displays</li>
+                </ul>
+            </div>
+        </div>
+        
+        <div class="version">
+            <div class="version-header">
+                <span class="version-number">Version 1.5.0</span>
+                <span class="version-date">December 15, 2024</span>
+            </div>
+            
+            <div class="change-category">
+                <div class="category-title new">New Features</div>
+                <ul class="change-list">
+                    <li>Added daily puzzle system with new challenges every 3 days</li>
+                    <li>Implemented global leaderboard with Supabase integration</li>
+                    <li>Added player flag selection system</li>
+                    <li>Created interactive world map with country image overlays</li>
+                </ul>
+            </div>
+            
+            <div class="change-category">
+                <div class="category-title improved">Improvements</div>
+                <ul class="change-list">
+                    <li>Enhanced game modes with better visual feedback</li>
+                    <li>Improved timer accuracy and display</li>
+                    <li>Better country detection algorithms</li>
+                    <li>Enhanced mobile experience</li>
+                </ul>
+            </div>
+        </div>
+        
+        <div class="version">
+            <div class="version-header">
+                <span class="version-number">Version 1.0.0</span>
+                <span class="version-date">December 10, 2024</span>
+            </div>
+            
+            <div class="change-category">
+                <div class="category-title new">Initial Release</div>
+                <ul class="change-list">
+                    <li>Launched Atlas geography learning platform</li>
+                    <li>Six different game modes: Population, Playground, Time, Hint, Football, and Duel</li>
+                    <li>Interactive world map powered by Leaflet and OpenStreetMap</li>
+                    <li>Responsive design for all devices</li>
+                    <li>Basic analytics and performance tracking</li>
+                </ul>
+            </div>
+        </div>
+        
+        <div class="highlight">
+            <p><strong>Note:</strong> This changelog is updated with each major release. For detailed technical changes, check our development repository.</p>
+        </div>
+        
+        <div style="display: flex; gap: 1rem; justify-content: center; margin-bottom: 2rem;">
+            <a href="index.html" class="back-link">← Back to Atlas</a>
+            <a href="blog.html" class="back-link">📝 Read Our Blog</a>
+        </div>
+    </div>
+</body>
+</html>

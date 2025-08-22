@@ -3,12 +3,112 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Atlas - Geography Games</title>
+    <title>Atlas - Interactive Geography Learning Platform | World Geography Games & Education</title>
+    
+    <!-- SEO Meta Tags -->
+    <meta name="description" content="Learn world geography through interactive games, daily puzzles, and educational challenges. Atlas offers population games, time-based challenges, football mode, and more. Perfect for students, teachers, and geography enthusiasts.">
+    <meta name="keywords" content="geography learning, world geography, interactive geography games, educational games, geography education, world map games, country identification, population geography, time zones, football geography, geography puzzles, Atlas platform, geography learning tools, educational technology">
+    <meta name="author" content="Atlas Team">
+    <meta name="robots" content="index, follow">
+    <meta name="language" content="English">
+    <meta name="revisit-after" content="7 days">
+    
+    <!-- Favicons -->
+    <link rel="icon" type="image/png" sizes="48x48" href="icon48x48.png">
+    <link rel="icon" type="image/png" sizes="512x512" href="icon512x512.png">
+    <link rel="apple-touch-icon" href="icon512x512.png">
+    
+    <!-- Open Graph Meta Tags -->
+    <meta property="og:title" content="Atlas - Interactive Geography Learning Platform">
+    <meta property="og:description" content="Learn world geography through interactive games, daily puzzles, and educational challenges. Atlas offers population games, time-based challenges, football mode, and more.">
+    <meta property="og:image" content="preview.png">
+    <meta property="og:url" content="https://atlas.killmytime.fun/">
+    <meta property="og:type" content="website">
+    <meta property="og:site_name" content="Atlas">
+    <meta property="og:locale" content="en_US">
+    
+    <!-- Twitter Card Meta Tags -->
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="Atlas - Interactive Geography Learning Platform">
+    <meta name="twitter:description" content="Learn world geography through interactive games, daily puzzles, and educational challenges. Atlas offers population games, time-based challenges, football mode, and more.">
+    <meta name="twitter:image" content="preview.png">
+    
+    <!-- Canonical tag -->
+    <link rel="canonical" href="https://atlas.killmytime.fun/">
+    
+    <!-- Schema.org Structured Data -->
+    <script type="application/ld+json">
+    {
+        "@context": "https://schema.org",
+        "@type": "WebSite",
+        "name": "Atlas - Interactive Geography Learning Platform",
+        "description": "Learn world geography through interactive games, daily puzzles, and educational challenges. Atlas offers population games, time-based challenges, football mode, and more.",
+        "url": "https://atlas.killmytime.fun/",
+        "potentialAction": {
+            "@type": "SearchAction",
+            "target": "https://atlas.killmytime.fun/search?q={search_term_string}",
+            "query-input": "required name=search_term_string"
+        },
+        "publisher": {
+            "@type": "Organization",
+            "name": "Atlas",
+            "url": "https://atlas.killmytime.fun"
+        }
+    }
+    </script>
+    
+    <script type="application/ld+json">
+    {
+        "@context": "https://schema.org",
+        "@type": "Organization",
+        "name": "Atlas",
+        "url": "https://atlas.killmytime.fun",
+        "logo": "https://atlas.killmytime.fun/icon512x512.png",
+        "description": "Interactive geography learning platform offering educational games and tools",
+        "sameAs": [
+            "https://atlas.killmytime.fun/blog.html"
+        ]
+    }
+    </script>
+    
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Kirang+Haerang&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
-    <style>
+    
+    <!-- Vercel Analytics -->
+    <script>
+        window.va = window.va || function () { (window.vaq = window.vaq || []).push(arguments); };
+      </script>
+      <script defer src="/_vercel/insights/script.js"></script>
+
+    <!-- Yandex Metrika -->
+    <script type="text/javascript">
+        (function(m,e,t,r,i,k,a){
+            m[i]=m[i]||function(){(m[i].a=m[i].a||[]).push(arguments)};
+            m[i].l=1*new Date();
+            for (var j = 0; j < document.scripts.length; j++) {if (document.scripts[j].src === r) { return; }}
+            k=e.createElement(t),a=e.getElementsByTagName(t)[0],k.async=1,k.src=r,a.parentNode.insertBefore(k,a)
+        })(window, document,'script','https://mc.yandex.ru/metrika/tag.js?id=103847760', 'ym');
+
+        ym(103847760, 'init', {ssr:true, webvisor:true, clickmap:true, ecommerce:"dataLayer", accurateTrackBounce:true, trackLinks:true});
+    </script>
+    <noscript><div><img src="https://mc.yandex.ru/watch/103847760" style="position:absolute; left:-9999px;" alt="" /></div></noscript>
+
+    <!-- Umami Analytics -->
+    <script defer src="https://cloud.umami.is/script.js" data-website-id="8d28733e-73b9-493a-95ea-8afde5b14cb0"></script>
+   
+   <!-- Google Analytics -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-1M6H8PMLDP"></script>
+    <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+
+    gtag('config', 'G-1M6H8PMLDP');
+    </script>
+    
+   <style>
         * {
             margin: 0;
             padding: 0;
@@ -48,10 +148,7 @@
             mix-blend-mode: multiply;
         }
         
-        /* Ensure WebGL canvas is properly sized */
-        #fluid-canvas:focus {
-            outline: none;
-        }
+
 
         /* Squared grid lines background */
         .bg-grid {
@@ -107,6 +204,435 @@
         .title span:nth-child(4) { animation-delay: 0.4s; }
         .title span:nth-child(5) { animation-delay: 0.5s; }
 
+        @keyframes drawLetter {
+            0% {
+                opacity: 0;
+                transform: translateY(20px) scale(0.8);
+            }
+        }
+        
+        /* Country emoji marker styling */
+        .country-emoji-marker {
+            background: transparent;
+            border: none;
+        }
+        
+        .emoji-marker {
+            font-size: 24px;
+            text-align: center;
+            line-height: 30px;
+            filter: drop-shadow(2px 2px 4px rgba(0, 0, 0, 0.7));
+            transition: transform 0.2s ease;
+        }
+        
+        .emoji-marker:hover {
+            transform: scale(1.2);
+        }
+        
+        .country-tooltip {
+            background: rgba(0, 0, 0, 0.9);
+            border: 2px solid #22c55e;
+            border-radius: 8px;
+            color: white;
+            font-family: 'Inter', sans-serif;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.5);
+        }
+        
+        .country-tooltip-content {
+            padding: 12px;
+            text-align: center;
+            min-width: 200px;
+        }
+        
+        .country-emoji {
+            font-size: 32px;
+            margin-bottom: 8px;
+        }
+        
+        .country-name {
+            font-size: 16px;
+            font-weight: bold;
+            color: #1f1f1f;
+            margin-bottom: 6px;
+        }
+        
+        .country-description {
+            font-size: 14px;
+            color: #1d1d1d;
+            line-height: 1.4;
+        }
+        
+        /* Map title styling */
+        .map-title {
+            position: absolute;
+            bottom: 20px;
+            left: 20px;
+            color: #ffffff;
+            font-family: 'Inter', sans-serif;
+            font-size: 18px;
+            font-weight: 500;
+            z-index: 1000;
+            background: rgba(0, 0, 0, 0.7);
+            padding: 8px 16px;
+            border: 1px solid #ffffff;
+            border-radius: 0;
+            letter-spacing: 0.5px;
+        }
+        
+        /* Country info modal styling */
+        .country-info-modal {
+            font-family: 'Inter', sans-serif;
+        }
+        
+        .country-info-content {
+            background: #000000;
+            border: 1px solid #ffffff;
+            border-radius: 0;
+            padding: 24px;
+            max-width: 700px;
+            width: 90%;
+            max-height: 70vh;
+            overflow-y: auto;
+            box-shadow: 0 0 40px rgba(255, 255, 255, 0.1);
+            position: relative;
+        }
+        
+        .country-info-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 24px;
+            padding-bottom: 16px;
+            border-bottom: 1px solid #ffffff;
+        }
+        
+        .country-info-header h2 {
+            color: #ffffff;
+            margin: 0;
+            font-size: 28px;
+            font-weight: 400;
+            font-family: 'Inter', sans-serif;
+            letter-spacing: -0.5px;
+        }
+        
+        .close-btn {
+            background: none;
+            border: 1px solid #ffffff;
+            color: #ffffff;
+            font-size: 24px;
+            cursor: pointer;
+            padding: 0;
+            width: 36px;
+            height: 36px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 0;
+            transition: all 0.2s ease;
+            font-family: 'Inter', sans-serif;
+        }
+        
+        .close-btn:hover {
+            background: #ffffff;
+            color: #000000;
+        }
+        
+        .country-info-body {
+            display: flex;
+            flex-direction: column;
+            gap: 24px;
+        }
+        
+        .country-display {
+            text-align: center;
+            padding: 20px;
+            background: #111111;
+            border: 1px solid #ffffff;
+            border-radius: 0;
+        }
+        
+        .country-emoji-large {
+            font-size: 48px;
+            margin-bottom: 16px;
+            display: block;
+        }
+        
+        .country-description-large {
+            color: #ffffff;
+            font-size: 16px;
+            line-height: 1.6;
+            margin: 0;
+            font-family: 'Inter', sans-serif;
+            font-weight: 300;
+            max-width: 500px;
+            margin: 0 auto;
+        }
+        
+        .editors-container {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 24px;
+        }
+        
+        .emoji-editor {
+            background: #111111;
+            border: 1px solid #ffffff;
+            border-radius: 0;
+            padding: 20px;
+        }
+        
+        .emoji-editor h3 {
+            color: #ffffff;
+            margin: 0 0 20px 0;
+            font-size: 18px;
+            text-align: center;
+            font-family: 'Inter', sans-serif;
+            font-weight: 400;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+        
+        .emoji-suggestions {
+            display: grid;
+            grid-template-columns: repeat(8, 1fr);
+            gap: 6px;
+            margin-bottom: 16px;
+        }
+        
+        .emoji-suggestion {
+            background: #000000;
+            border: 1px solid #ffffff;
+            border-radius: 0;
+            padding: 10px 6px;
+            font-size: 16px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 38px;
+        }
+        
+        .emoji-suggestion:hover {
+            background: #ffffff;
+            color: #000000;
+            transform: scale(1.05);
+        }
+        
+        .custom-emoji-input {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+        
+        .emoji-input {
+            background: #000000;
+            border: 1px solid #ffffff;
+            border-radius: 0;
+            padding: 12px;
+            color: #ffffff;
+            font-size: 16px;
+            font-family: 'Inter', sans-serif;
+            text-align: center;
+        }
+        
+        .emoji-input:focus {
+            outline: none;
+            border-color: #ffffff;
+            background: #111111;
+        }
+        
+        .emoji-input::placeholder {
+            color: #666666;
+        }
+        
+        .set-emoji-btn {
+            background: #ffffff;
+            color: #000000;
+            border: 1px solid #ffffff;
+            border-radius: 0;
+            padding: 12px 16px;
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            font-family: 'Inter', sans-serif;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        
+        .set-emoji-btn:hover {
+            background: #000000;
+            color: #ffffff;
+        }
+        
+        /* Description editor styling */
+        .description-editor {
+            background: #111111;
+            border: 1px solid #ffffff;
+            border-radius: 0;
+            padding: 20px;
+        }
+        
+        .description-editor h3 {
+            font-size: 18px;
+            color: #ffffff;
+            margin-bottom: 20px;
+            text-align: center;
+            font-family: 'Inter', sans-serif;
+            font-weight: 400;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+        
+        .description-input-container {
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+        }
+        
+        .description-input {
+            background: #000000;
+            border: 1px solid #ffffff;
+            border-radius: 0;
+            padding: 12px;
+            color: #ffffff;
+            font-size: 14px;
+            font-family: 'Inter', sans-serif;
+            resize: vertical;
+            min-height: 80px;
+            line-height: 1.5;
+        }
+        
+        .description-input:focus {
+            outline: none;
+            border-color: #ffffff;
+            background: #111111;
+        }
+        
+        .description-input::placeholder {
+            color: #666666;
+        }
+        
+        .set-description-btn {
+            background: #ffffff;
+            color: #000000;
+            border: 1px solid #ffffff;
+            border-radius: 0;
+            padding: 12px 20px;
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            align-self: flex-end;
+            font-family: 'Inter', sans-serif;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        
+        .set-description-btn:hover {
+            background: #000000;
+            color: #ffffff;
+        }
+        
+        /* Responsive design */
+        @media (max-width: 768px) {
+            .country-info-content {
+                padding: 24px;
+                margin: 20px;
+            }
+            
+            .editors-container {
+                grid-template-columns: 1fr;
+                gap: 24px;
+            }
+            
+            .emoji-suggestions {
+                grid-template-columns: repeat(6, 1fr);
+            }
+            
+            .country-info-header h2 {
+                font-size: 24px;
+            }
+        }
+        
+        /* Toast notification animation */
+        @keyframes slideIn {
+            from {
+                transform: translateX(100%);
+                opacity: 0;
+            }
+            to {
+                transform: translateX(0);
+                opacity: 1;
+            }
+        }
+        
+        /* Country image overlay styling */
+        .country-image-overlay {
+            border: 2px solid #22c55e !important;
+            border-radius: 8px !important;
+            box-shadow: 0 4px 12px rgba(34, 197, 94, 0.3) !important;
+            object-fit: cover !important;
+            object-position: center !important;
+        }
+        
+        .country-image-overlay:hover {
+            border-color: #16a34a !important;
+            box-shadow: 0 6px 20px rgba(34, 197, 94, 0.5) !important;
+        }
+        
+        /* Ensure images fit properly within country boundaries */
+        .country-image-overlay img {
+            width: 100% !important;
+            height: 100% !important;
+            object-fit: cover !important;
+            object-position: center !important;
+        }
+        
+        /* NEW: Clipped image overlay styling for perfect border fit */
+        .country-image-overlay-clipped {
+            border: 3px solid #22c55e !important;
+            border-radius: 0 !important;
+            box-shadow: 0 0 0 2px rgba(34, 197, 94, 0.3) !important;
+            clip-path: polygon(0% 0%, 100% 0%, 100% 100%, 0% 100%) !important;
+        }
+        
+        .country-image-overlay-clipped:hover {
+            border-color: #16a34a !important;
+            box-shadow: 0 0 0 3px rgba(34, 197, 94, 0.5) !important;
+        }
+        
+        /* NEW: Exact shape image overlay styling - looks like hover effect */
+        .country-image-overlay-exact-shape {
+            border: 2px solid #16a34a !important;
+            border-radius: 0 !important;
+            box-shadow: 0 0 0 1px rgba(34, 197, 94, 0.2) !important;
+            /* This will make it look like the hover effect */
+            background: rgba(34, 197, 94, 0.1) !important;
+        }
+        
+        .country-image-overlay-exact-shape:hover {
+            border-color: #15803d !important;
+            box-shadow: 0 0 0 2px rgba(34, 197, 94, 0.4) !important;
+            background: rgba(34, 197, 94, 0.2) !important;
+        }
+        
+        /* NEW: Perfect shape image overlay styling with SVG clipping */
+        .country-image-overlay-perfect-shape {
+            border: none !important;
+            border-radius: 0 !important;
+            box-shadow: none !important;
+            background: none !important;
+            /* This will be clipped to the exact country shape */
+            mask: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg"><defs><mask id="country-mask"><rect width="100%" height="100%" fill="white"/></mask></defs></svg>') !important;
+            -webkit-mask: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg"><defs><mask id="country-mask"><rect width="100%" height="100%" fill="white"/></mask></defs></svg>') !important;
+        }
+        
+        .country-image-overlay-perfect-shape:hover {
+            /* No hover effects needed - image is perfectly clipped */
+        }
+        
         @keyframes drawLetter {
             0% {
                 opacity: 0;
@@ -862,6 +1388,58 @@
             font-size: 0.9rem;
         }
 
+        /* Skip Navigation Link for Accessibility */
+        .skip-link {
+            position: absolute;
+            top: -40px;
+            left: 6px;
+            background: #1e293b;
+            color: white;
+            padding: 8px;
+            text-decoration: none;
+            border-radius: 4px;
+            z-index: 10000;
+            transition: top 0.3s ease;
+        }
+        
+        .skip-link:focus {
+            top: 6px;
+        }
+        
+        /* Focus styles for accessibility */
+        .game-mode:focus,
+        .puzzle-square:focus {
+            outline: 3px solid #3b82f6;
+            outline-offset: 2px;
+        }
+        
+        .play-button:focus {
+            outline: 3px solid #3b82f6;
+            outline-offset: 2px;
+        }
+        
+        /* High contrast mode support */
+        @media (prefers-contrast: high) {
+            .game-mode {
+                border: 2px solid #000;
+            }
+            
+            .puzzle-square {
+                border: 2px solid #000;
+            }
+        }
+        
+        /* Reduced motion support */
+        @media (prefers-reduced-motion: reduce) {
+            .title,
+            .title span,
+            .game-mode,
+            .puzzle-square {
+                animation: none;
+                transition: none;
+            }
+        }
+
         /* Responsive design */
         @media (max-width: 768px) {
             .title {
@@ -902,6 +1480,9 @@
     </style>
 </head>
 <body>
+    <!-- Skip Navigation Link for Accessibility -->
+    <a href="#main-content" class="skip-link">Skip to main content</a>
+    
     <!-- Background grid -->
     <div class="bg-grid"></div>
     
@@ -909,7 +1490,7 @@
     <canvas id="fluid-canvas"></canvas>
 
     <!-- Header -->
-    <header class="header">
+    <header class="header" role="banner">
         <h1 class="title">
             <span>A</span>
             <span>t</span>
@@ -931,17 +1512,41 @@
         </div>
         
         <!-- Daily Puzzle Selector - Connected to minimap (visible by default) -->
-        <div class="puzzle-selector-connected" id="puzzle-selector">
-            <div class="puzzle-square" onclick="selectPuzzle('2025-08-15')" id="puzzle-2025-08-15">
+        <div class="puzzle-selector-connected" id="puzzle-selector" role="region" aria-label="Daily Puzzle Selector">
+            <div class="puzzle-square" 
+                 onclick="selectPuzzle('2025-08-15')" 
+                 onkeydown="if(event.key === 'Enter' || event.key === ' ') selectPuzzle('2025-08-15')"
+                 id="puzzle-2025-08-15" 
+                 tabindex="0"
+                 role="button"
+                 aria-label="Puzzle 1 - Sri Lanka (Completed)">
                 <span class="puzzle-number">1</span>
             </div>
-            <div class="puzzle-square" onclick="selectPuzzle('2025-08-18')" id="puzzle-2025-08-18">
+            <div class="puzzle-square" 
+                 onclick="selectPuzzle('2025-08-18')" 
+                 onkeydown="if(event.key === 'Enter' || event.key === ' ') selectPuzzle('2025-08-18')"
+                 id="puzzle-2025-08-18" 
+                 tabindex="0"
+                 role="button"
+                 aria-label="Puzzle 2 - South Korea (Completed)">
                 <span class="puzzle-number">2</span>
             </div>
-            <div class="puzzle-square current" onclick="selectPuzzle('2025-08-21')" id="puzzle-2025-08-21">
+            <div class="puzzle-square current" 
+                 onclick="selectPuzzle('2025-08-21')" 
+                 onkeydown="if(event.key === 'Enter' || event.key === ' ') selectPuzzle('2025-08-21')"
+                 id="puzzle-2025-08-21" 
+                 tabindex="0"
+                 role="button"
+                 aria-label="Puzzle 3 - United States of America (Current)">
                 <span class="puzzle-number">3</span>
             </div>
-            <div class="puzzle-square locked" onclick="selectPuzzle('2025-08-24')" id="puzzle-2025-08-24">
+            <div class="puzzle-square locked" 
+                 onclick="selectPuzzle('2025-08-24')" 
+                 onkeydown="if(event.key === 'Enter' || event.key === ' ') selectPuzzle('2025-08-24')"
+                 id="puzzle-2025-08-24" 
+                 tabindex="0"
+                 role="button"
+                 aria-label="Puzzle 4 - Brazil (Locked)">
                 <span class="puzzle-number">4</span>
             </div>
         </div>
@@ -952,81 +1557,130 @@
     </header>
 
     <!-- Main content -->
-    <main class="main">
-        <div class="game-modes">
+    <main class="main" id="main-content" role="main">
+        <div class="game-modes" role="region" aria-label="Game Modes">
             <!-- Population Mode -->
-            <div class="game-mode" onclick="window.location.href='population.html'">
+            <div class="game-mode" 
+                 onclick="window.location.href='population.html'" 
+                 onkeydown="if(event.key === 'Enter' || event.key === ' ') window.location.href='population.html'"
+                 tabindex="0"
+                 role="button"
+                 aria-label="Population Mode - Guess which country has more or fewer people">
                 <div class="game-mode-preview">
-                    <img src="gifs/populationHint.gif" alt="Population Mode Preview" class="preview-gif">
+                    <img src="gifs/populationHint.gif" alt="Population Mode Preview - Interactive preview of population guessing game" class="preview-gif">
                 </div>
                 <div class="game-mode-info">
                     <h3>Population</h3>
                     <p>lower or higher ?</p>
                 </div>
-                <button class="play-button">Start</button>
+                <button class="play-button" aria-label="Start Population Mode Game">Start</button>
             </div>
 
             <!-- Playground Mode -->
-            <div class="game-mode" onclick="window.location.href='playground.html'">
+            <div class="game-mode" 
+                 onclick="window.location.href='playground.html'" 
+                 onkeydown="if(event.key === 'Enter' || event.key === ' ') window.location.href='playground.html'"
+                 tabindex="0"
+                 role="button"
+                 aria-label="Playground Mode - Free exploration of world geography">
                 <div class="game-mode-preview">
-                    <img src="gifs/playgroundGif.gif" alt="Playground Mode Preview" class="preview-gif">
+                    <img src="gifs/playgroundGif.gif" alt="Playground Mode Preview - Interactive preview of free exploration mode" class="preview-gif">
                 </div>
                 <div class="game-mode-info">
                     <h3>Playground</h3>
                     <p>free exploration</p>
                 </div>
-                <button class="play-button">Start</button>
+                <button class="play-button" aria-label="Start Playground Mode Game">Start</button>
             </div>
 
             <!-- Time Mode -->
-            <div class="game-mode" onclick="window.location.href='time.html'">
+            <div class="game-mode" 
+                 onclick="window.location.href='time.html'" 
+                 onkeydown="if(event.key === 'Enter' || event.key === ' ') window.location.href='time.html'"
+                 tabindex="0"
+                 role="button"
+                 aria-label="Time Mode - Race against time to guess countries">
                 <div class="game-mode-preview">
-                    <img src="gifs/timeGif.gif" alt="Time Mode Preview" class="preview-gif">
+                    <img src="gifs/timeGif.gif" alt="Time Mode Preview - Interactive preview of time-based geography challenge" class="preview-gif">
                 </div>
                 <div class="game-mode-info">
                     <h3>Time</h3>
                     <p>race against time</p>
                 </div>
-                <button class="play-button">Start</button>
+                <button class="play-button" aria-label="Start Time Mode Game">Start</button>
             </div>
 
             <!-- Hint Mode -->
-            <div class="game-mode" onclick="window.location.href='hint.html'">
+            <div class="game-mode" 
+                 onclick="window.location.href='hint.html'" 
+                 onkeydown="if(event.key === 'Enter' || event.key === ' ') window.location.href='hint.html'"
+                 tabindex="0"
+                 role="button"
+                 aria-label="Hint Mode - Get funny clues to help guess countries">
                 <div class="game-mode-preview">
-                    <img src="gifs/hintGif.gif" alt="Hint Mode Preview" class="preview-gif">
+                    <img src="gifs/hintGif.gif" alt="Hint Mode Preview - Interactive preview of hint-based geography game" class="preview-gif">
                 </div>
                 <div class="game-mode-info">
                     <h3>Hint</h3>
                     <p>get funny clues</p>
                 </div>
-                <button class="play-button">Start</button>
+                <button class="play-button" aria-label="Start Hint Mode Game">Start</button>
             </div>
 
             <!-- Football Mode -->
-            <div class="game-mode" onclick="window.location.href='football.html'">
+            <div class="game-mode" 
+                 onclick="window.location.href='football.html'" 
+                 onkeydown="if(event.key === 'Enter' || event.key === ' ') window.location.href='football.html'"
+                 tabindex="0"
+                 role="button"
+                 aria-label="Football Mode - Learn geography through football clubs">
                 <div class="game-mode-preview">
-                    <img src="gifs/footballGif.gif" alt="Football Mode Preview" class="preview-gif">
+                    <img src="gifs/footballGif.gif" alt="Football Mode Preview - Interactive preview of football-based geography learning" class="preview-gif">
                 </div>
                 <div class="game-mode-info">
                     <h3>Football</h3>
                     <p>learn through football</p>
                 </div>
-                <button class="play-button">Start</button>
+                <button class="play-button" aria-label="Start Football Mode Game">Start</button>
             </div>
 
             <!-- Duel Mode -->
-            <div class="game-mode" onclick="window.location.href='duel.html'">
+            <div class="game-mode" 
+                 onclick="window.location.href='duel.html'" 
+                 onkeydown="if(event.key === 'Enter' || event.key === ' ') window.location.href='duel.html'"
+                 tabindex="0"
+                 role="button"
+                 aria-label="Duel Mode - Two-player competitive geography game">
                 <div class="game-mode-preview">
-                    <img src="gifs/duelGif.gif" alt="Duel Mode Preview" class="preview-gif">
+                    <img src="gifs/duelGif.gif" alt="Duel Mode Preview - Interactive preview of two-player competitive geography game" class="preview-gif">
                 </div>
                 <div class="game-mode-info">
                     <h3>Duel</h3>
                     <p>two-player competitive</p>
                 </div>
-                <button class="play-button">Start</button>
+                <button class="play-button" aria-label="Start Duel Mode Game">Start</button>
             </div>
 
 
+        </div>
+
+        <!-- Interactive World Map Section -->
+        <div class="map-section" style="margin: 3rem auto; max-width: 1200px;">
+            <div class="map-container" style="position: relative; height: 500px; border-radius: 12px; overflow: hidden; border: 1px solid var(--border-color); box-shadow: 0 10px 30px var(--shadow-color);">
+                <div id="world-map" style="width: 100%; height: 100%; background: #000000;">
+            <div class="map-title">Wall of Emojis Map</div>
+        </div>
+                
+                <!-- Map Info Panel -->
+                <div class="map-info" style="position: absolute; top: 20px; right: 20px; background: rgba(255,255,255,0.9); padding: 15px; border-radius: 8px; border: 1px solid var(--border-color); backdrop-filter: blur(10px); max-width: 250px;">
+                    <h4 style="margin: 0 0 10px 0; color: var(--text-primary); font-size: 14px;">Map Information</h4>
+                    <div id="map-coordinates" style="font-size: 12px; color: var(--text-secondary); margin-bottom: 8px;">Click on the map to see coordinates</div>
+                    <div id="map-zoom" style="font-size: 12px; color: var(--text-secondary);">Zoom: 2</div>
+                    <button onclick="testImageLoading()" style="margin-top: 10px; padding: 5px 10px; background: #22c55e; color: white; border: none; border-radius: 4px; cursor: pointer; font-size: 12px;">Test Images</button>
+                </div>
+                
+
+            </div>
         </div>
         
         <!-- Global Leaderboard Section -->
@@ -1070,13 +1724,19 @@
     </main>
 
     <!-- Footer -->
-    <footer class="footer">
-        <p>&copy; 2024 Atlas - Interactive Geography Learning</p>
-        <p style="margin-top: 10px;">
-            <a href="deploy-guide.html" style="color: var(--accent-color); text-decoration: none; font-weight: 500;">
-                🚀 Deploy Online
+    <footer class="footer" role="contentinfo">
+        <p>&copy; 2025 Atlas - Interactive Geography Learning</p>
+        <div class="footer-links" style="margin-top: 15px;">
+            <a href="blog.html" style="color: var(--accent-color); text-decoration: none; font-weight: 500; margin-right: 20px;">
+                📝 Blog
             </a>
-        </p>
+            <a href="privacy.html" style="color: var(--accent-color); text-decoration: none; font-weight: 500; margin-right: 20px;">
+                📋 Privacy Policy
+            </a>
+            <a href="changelog.html" style="color: var(--accent-color); text-decoration: none; font-weight: 500; margin-right: 20px;">
+                📝 Changelog
+            </a>
+        </div>
     </footer>
 
     <script>
@@ -2809,7 +3469,7 @@
                                     "y": 30
                                 },
                                 "rate": {
-                                    "quantity": 10,
+                                        "quantity": 5,
                                     "delay": 0.15
                                 },
                                 "particles": {
@@ -2899,7 +3559,7 @@
                             "size": {
                                 "value": {
                                     "min": 0,
-                                    "max": 3
+                                        "max": 2
                                 },
                                 "animation": {
                                     "enable": true,
@@ -3356,6 +4016,1030 @@
                 submitBtn.textContent = 'Submit Score';
             }
         }
+
+        // Interactive World Map Functionality
+        let worldMap = null;
+        let geoJSONLayer = null;
+
+
+        // Initialize the world map when the page loads
+        document.addEventListener('DOMContentLoaded', function() {
+            initializeWorldMap();
+            // Load country emojis from Supabase
+            loadCountryEmojis();
+            // Automatically load countries on startup
+            setTimeout(() => {
+                toggleGeoJSON();
+            }, 1000);
+            
+
+        });
+
+        function initializeWorldMap() {
+            // Initialize map
+            worldMap = L.map('world-map').setView([20, 0], 2);
+
+            // Add completely label-free dark map tiles
+            L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_nolabels/{z}/{x}/{y}{r}.png', {
+                attribution: '© OpenStreetMap & Carto',
+                subdomains: 'abcd',
+                maxZoom: 6,
+                minZoom: 2
+            }).addTo(worldMap);
+
+            // Add click event to show coordinates only (no markers)
+            worldMap.on('click', function(e) {
+                const lat = e.latlng.lat.toFixed(4);
+                const lng = e.latlng.lng.toFixed(4);
+                
+                // Update coordinates display
+                document.getElementById('map-coordinates').textContent = `Lat: ${lat}, Lng: ${lng}`;
+            });
+
+            // Update zoom level display
+            worldMap.on('zoomend', function() {
+                const zoom = worldMap.getZoom();
+                document.getElementById('map-zoom').textContent = `Zoom: ${zoom}`;
+            });
+
+
+        }
+
+        // Country descriptions (static, won't change)
+        const countryDescriptions = {
+            // North America
+            'United States': 'Land of the free and home of the brave',
+            'Canada': 'Great white north with maple syrup',
+            'Mexico': 'Tacos, tequila, and ancient pyramids',
+            'Greenland': 'Ice, snow, and northern lights',
+            'Cuba': 'Cigars, salsa, and Caribbean culture',
+            'Jamaica': 'Reggae, beaches, and jerk chicken',
+            'Haiti': 'Vibrant culture and Caribbean spirit',
+            'Dominican Republic': 'Baseball, beaches, and merengue',
+            'Puerto Rico': 'Island of enchantment and coqui frogs',
+            'Panama': 'Canal, rainforests, and biodiversity',
+            'Costa Rica': 'Pura vida, coffee, and eco-tourism',
+            'Nicaragua': 'Lakes, volcanoes, and colonial cities',
+            'Honduras': 'Mayan ruins, beaches, and mountains',
+            'El Salvador': 'Pupusas, volcanoes, and Pacific coast',
+            'Guatemala': 'Ancient Maya, textiles, and volcanoes',
+            'Belize': 'Barrier reef, jungles, and Mayan sites',
+            
+            // South America
+            'Brazil': 'Samba, soccer, and the Amazon rainforest',
+            'Argentina': 'Tango, steak, and Patagonia mountains',
+            'Chile': 'Wine, mountains, and Easter Island',
+            'Peru': 'Machu Picchu, llamas, and ancient Incas',
+            'Colombia': 'Coffee, emeralds, and Caribbean coast',
+            'Venezuela': 'Angel Falls, oil, and Caribbean beaches',
+            'Ecuador': 'Galapagos Islands, volcanoes, and equator',
+            'Bolivia': 'Salt flats, mountains, and indigenous culture',
+            'Paraguay': 'Guarani culture, rivers, and yerba mate',
+            'Uruguay': 'Beaches, mate tea, and peaceful living',
+            'Guyana': 'Rainforests, waterfalls, and diverse culture',
+            'Suriname': 'Tropical forests, rivers, and Dutch heritage',
+            'French Guiana': 'European spaceport and Amazon jungle',
+            
+            // Europe
+            'United Kingdom': 'Tea, rain, and royal traditions',
+            'France': 'Baguettes, wine, and the Eiffel Tower',
+            'Germany': 'Beer, sausages, and Oktoberfest',
+            'Italy': 'Pizza, pasta, and Renaissance art',
+            'Spain': 'Paella, flamenco, and sunny beaches',
+            'Russia': 'Vodka, bears, and vast landscapes',
+            'Portugal': 'Cod, port wine, and Atlantic coast',
+            'Netherlands': 'Tulips, windmills, and canals',
+            'Belgium': 'Chocolate, waffles, and medieval cities',
+            'Switzerland': 'Alps, chocolate, and precision watches',
+            'Austria': 'Classical music, schnitzel, and mountains',
+            'Poland': 'Pierogi, history, and Baltic coast',
+            'Czech Republic': 'Beer, castles, and Prague',
+            'Hungary': 'Thermal baths, goulash, and Budapest',
+            'Romania': 'Dracula, castles, and Carpathians',
+            'Bulgaria': 'Roses, yogurt, and Black Sea coast',
+            'Greece': 'Ancient ruins, islands, and Mediterranean',
+            'Ukraine': 'Sunflowers, borscht, and rich history',
+            'Belarus': 'Forests, potatoes, and Soviet heritage',
+            'Lithuania': 'Medieval castles, amber, and Baltic Sea',
+            'Latvia': 'Baltic coast, forests, and medieval towns',
+            'Estonia': 'Digital innovation and Baltic beauty',
+            'Finland': 'Saunas, lakes, and northern lights',
+            'Sweden': 'IKEA, meatballs, and midnight sun',
+            'Norway': 'Fjords, Vikings, and northern lights',
+            'Denmark': 'Hygge, pastries, and fairy tales',
+            'Iceland': 'Geysers, volcanoes, and northern lights',
+            'Ireland': 'Guinness, leprechauns, and Celtic culture',
+            'Scotland': 'Whisky, kilts, and highland games',
+            'Wales': 'Dragons, castles, and Celtic heritage',
+            'Luxembourg': 'Financial center and European capital',
+            'Liechtenstein': 'Alpine principality and banking',
+            'Monaco': 'Luxury, casinos, and Formula 1',
+            'Andorra': 'Pyrenees mountains and tax haven',
+            'San Marino': 'Ancient republic and mountain views',
+            'Vatican City': 'Smallest country and Catholic center',
+            'Malta': 'Islands, history, and Mediterranean charm',
+            'Cyprus': 'Island of love and ancient history',
+            'Albania': 'Mountains, beaches, and Ottoman heritage',
+            'North Macedonia': 'Mountains, lakes, and ancient history',
+            'Kosovo': 'Young nation and Balkan culture',
+            'Serbia': 'Balkan culture and Orthodox heritage',
+            'Montenegro': 'Adriatic coast and mountain beauty',
+            'Bosnia and Herzegovina': 'Bridges, mountains, and diverse culture',
+            'Croatia': 'Adriatic coast, islands, and Game of Thrones',
+            'Slovenia': 'Alpine beauty and Adriatic coast',
+            'Slovakia': 'Mountains, castles, and Slavic culture',
+            'Moldova': 'Wine, monasteries, and Eastern European charm',
+            
+            // Asia
+            'China': 'Great Wall, dragons, and ancient culture',
+            'Japan': 'Cherry blossoms, sushi, and technology',
+            'India': 'Spices, temples, and diverse culture',
+            'Pakistan': 'Mountains, spices, and ancient trade routes',
+            'Bangladesh': 'Rice, rivers, and Bengal tigers',
+            'Thailand': 'Elephants, temples, and street food',
+            'Vietnam': 'Pho, rice terraces, and Ho Chi Minh',
+            'Malaysia': 'Palm trees, diverse culture, and Petronas',
+            'Indonesia': 'Volcanoes, islands, and diverse culture',
+            'Philippines': 'Islands, beaches, and friendly people',
+            'South Korea': 'K-pop, kimchi, and technology',
+            'North Korea': 'Isolated nation with unique culture',
+            'Mongolia': 'Nomads, horses, and vast steppes',
+            'Kazakhstan': 'Steppes, oil, and Central Asia',
+            'Uzbekistan': 'Silk Road, mosques, and ancient cities',
+            'Iran': 'Persian culture, carpets, and ancient history',
+            'Iraq': 'Mesopotamia, ancient civilization, and rivers',
+            'Saudi Arabia': 'Islam, oil, and desert landscapes',
+            'Yemen': 'Ancient history and Arabian culture',
+            'Oman': 'Desert, mountains, and frankincense',
+            'United Arab Emirates': 'Dubai, oil, and modern cities',
+            'Qatar': 'Desert, oil, and World Cup 2022',
+            'Bahrain': 'Pearls, oil, and island kingdom',
+            'Kuwait': 'Oil, desert, and Persian Gulf',
+            'Jordan': 'Petra, desert, and biblical history',
+            'Lebanon': 'Cedar trees, mountains, and Mediterranean',
+            'Syria': 'Ancient history and Mediterranean coast',
+            'Israel': 'Holy land, innovation, and diverse culture',
+            'Palestine': 'Ancient history and cultural heritage',
+            'Georgia': 'Mountains, wine, and Caucasus culture',
+            'Armenia': 'First Christian nation and Caucasus heritage',
+            'Azerbaijan': 'Oil, mountains, and Caspian Sea',
+            'Turkmenistan': 'Desert, gas, and Silk Road history',
+            'Tajikistan': 'Mountains, rivers, and Central Asia',
+            'Kyrgyzstan': 'Mountains, nomads, and Central Asia',
+            'Afghanistan': 'Mountains, history, and crossroads of Asia',
+            'Nepal': 'Mountains, temples, and Mount Everest',
+            'Bhutan': 'Happiness, mountains, and Buddhist culture',
+            'Sri Lanka': 'Tea, beaches, and ancient temples',
+            'Maldives': 'Islands, beaches, and coral reefs',
+            'Myanmar': 'Temples, rivers, and golden pagodas',
+            'Laos': 'Mountains, rivers, and Buddhist culture',
+            'Cambodia': 'Angkor Wat, temples, and Khmer history',
+            'Brunei': 'Oil, rainforests, and sultanate',
+            'East Timor': 'Islands, coffee, and independence',
+            'Taiwan': 'Technology, mountains, and island culture',
+            'Hong Kong': 'Skyscrapers, harbor, and global finance',
+            'Macau': 'Casinos, Portuguese heritage, and gaming',
+            
+            // Africa
+            'South Africa': 'Safari, diamonds, and diverse wildlife',
+            'Egypt': 'Pyramids, pharaohs, and the Nile',
+            'Nigeria': 'Nollywood, jollof rice, and vibrant culture',
+            'Kenya': 'Safari, Maasai warriors, and Mount Kenya',
+            'Morocco': 'Desert, souks, and mint tea',
+            'Algeria': 'Desert, mountains, and Mediterranean coast',
+            'Tunisia': 'Ancient ruins, beaches, and Mediterranean',
+            'Libya': 'Desert, oil, and Mediterranean coast',
+            'Sudan': 'Nile River, desert, and ancient kingdoms',
+            'South Sudan': 'Youngest nation and African culture',
+            'Ethiopia': 'Coffee, mountains, and ancient history',
+            'Somalia': 'Horn of Africa and Indian Ocean coast',
+            'Djibouti': 'Strategic location and Red Sea coast',
+            'Eritrea': 'Red Sea coast and mountain highlands',
+            'Chad': 'Desert, lake, and Central African culture',
+            'Niger': 'Desert, uranium, and West African culture',
+            'Mali': 'Desert, gold, and ancient empires',
+            'Burkina Faso': 'Sahel region and West African culture',
+            'Senegal': 'Atlantic coast and West African culture',
+            'Gambia': 'River, beaches, and West African culture',
+            'Guinea-Bissau': 'Islands, rivers, and West African culture',
+            'Guinea': 'Mountains, minerals, and West African culture',
+            'Sierra Leone': 'Beaches, diamonds, and West African culture',
+            'Liberia': 'Liberty, beaches, and West African culture',
+            'Ivory Coast': 'Cocoa, beaches, and West African culture',
+            'Ghana': 'Gold Coast, cocoa, and West African culture',
+            'Togo': 'Beaches, mountains, and West African culture',
+            'Benin': 'Voodoo, beaches, and West African culture',
+            'Cameroon': 'Mountains, rainforests, and Central Africa',
+            'Central African Republic': 'Heart of Africa and diverse wildlife',
+            'Equatorial Guinea': 'Oil, islands, and Central Africa',
+            'Gabon': 'Rainforests, oil, and Central Africa',
+            'Republic of the Congo': 'Rainforests, rivers, and Central Africa',
+            'Democratic Republic of the Congo': 'Rainforests, minerals, and Central Africa',
+            'Angola': 'Oil, beaches, and Southern African culture',
+            'Zambia': 'Victoria Falls, copper, and Southern Africa',
+            'Zimbabwe': 'Victoria Falls, history, and Southern Africa',
+            'Botswana': 'Desert, diamonds, and Southern Africa',
+            'Namibia': 'Desert, coast, and Southern African culture',
+            'Lesotho': 'Mountain kingdom and Southern Africa',
+            'Eswatini': 'Mountains, culture, and Southern Africa',
+            'Madagascar': 'Unique wildlife, islands, and Indian Ocean',
+            'Comoros': 'Islands, spices, and Indian Ocean',
+            'Seychelles': 'Islands, beaches, and Indian Ocean paradise',
+            'Mauritius': 'Islands, beaches, and Indian Ocean culture',
+            'Cape Verde': 'Islands, music, and Atlantic Ocean',
+            'São Tomé and Príncipe': 'Islands, chocolate, and Gulf of Guinea',
+            
+            // Oceania
+            'Australia': 'Kangaroos, beaches, and the Outback',
+            'New Zealand': 'Kiwi birds, mountains, and Maori culture',
+            'Papua New Guinea': 'Tribal culture, rainforests, and diversity',
+            'Fiji': 'Islands, beaches, and Pacific culture',
+            'Solomon Islands': 'Islands, rainforests, and Pacific culture',
+            'Vanuatu': 'Volcanoes, islands, and Pacific culture',
+            'New Caledonia': 'Islands, nickel, and Pacific culture',
+            'Samoa': 'Islands, culture, and Pacific heritage',
+            'Tonga': 'Islands, monarchy, and Pacific culture',
+            'Tuvalu': 'Islands, climate change, and Pacific culture',
+            'Kiribati': 'Islands, fishing, and Pacific culture',
+            'Nauru': 'Island nation and phosphate mining',
+            'Palau': 'Islands, marine life, and Pacific culture',
+            'Micronesia': 'Islands, culture, and Pacific heritage',
+            'Marshall Islands': 'Islands, nuclear testing, and Pacific culture',
+            
+            // Additional territories and dependencies
+            'French Polynesia': 'Tahiti, islands, and Pacific paradise',
+            'American Samoa': 'US territory and Pacific culture',
+            'Guam': 'US territory and Pacific island',
+            'Northern Mariana Islands': 'US territory and Pacific culture',
+            'Hawaii': 'Islands, volcanoes, and Pacific culture',
+            'Alaska': 'Mountains, glaciers, and northern wilderness',
+            'Puerto Rico': 'US territory and Caribbean culture',
+            'US Virgin Islands': 'US territory and Caribbean paradise',
+            'British Virgin Islands': 'UK territory and Caribbean culture',
+            'Cayman Islands': 'UK territory and financial center',
+            'Bermuda': 'UK territory and Atlantic island',
+            'Falkland Islands': 'UK territory and South Atlantic',
+            'French Guiana': 'French territory and Amazon jungle',
+            'Greenland': 'Danish territory and Arctic wilderness',
+            'Faroe Islands': 'Danish territory and North Atlantic',
+            'Svalbard': 'Norwegian territory and Arctic wilderness',
+            'Azores': 'Portuguese territory and Atlantic islands',
+            'Madeira': 'Portuguese territory and Atlantic paradise',
+            'Canary Islands': 'Spanish territory and Atlantic islands',
+            'Ceuta': 'Spanish territory and Mediterranean coast',
+            'Melilla': 'Spanish territory and Mediterranean coast',
+            'Gibraltar': 'UK territory and Mediterranean rock',
+            'Akrotiri and Dhekelia': 'UK territory and Cyprus bases',
+            'Christmas Island': 'Australian territory and Indian Ocean',
+            'Cocos Islands': 'Australian territory and Indian Ocean',
+            'Norfolk Island': 'Australian territory and Pacific Ocean',
+            'Heard and McDonald Islands': 'Australian territory and Southern Ocean',
+            'Ashmore and Cartier Islands': 'Australian territory and Indian Ocean',
+            'Coral Sea Islands': 'Australian territory and Pacific Ocean',
+            'Macquarie Island': 'Australian territory and Southern Ocean',
+            'Bouvet Island': 'Norwegian territory and Southern Ocean',
+            'South Georgia and South Sandwich Islands': 'UK territory and Southern Ocean',
+            'British Indian Ocean Territory': 'UK territory and Indian Ocean',
+            'Pitcairn Islands': 'UK territory and Pacific Ocean',
+            'Tokelau': 'New Zealand territory and Pacific culture',
+            'Niue': 'New Zealand territory and Pacific culture',
+            'Cook Islands': 'New Zealand territory and Pacific culture',
+            'Wallis and Futuna': 'French territory and Pacific culture',
+            'New Caledonia': 'French territory and Pacific culture',
+            'French Polynesia': 'French territory and Pacific paradise',
+            'Clipperton Island': 'French territory and Pacific Ocean',
+            'Easter Island': 'Chilean territory and Pacific culture',
+            'Juan Fernández Islands': 'Chilean territory and Pacific Ocean',
+            'Galápagos Islands': 'Ecuadorian territory and Pacific wildlife',
+            'Fernando de Noronha': 'Brazilian territory and Atlantic Ocean',
+            'Saint Helena': 'UK territory and Atlantic Ocean',
+            'Ascension Island': 'UK territory and Atlantic Ocean',
+            'Tristan da Cunha': 'UK territory and Atlantic Ocean',
+            'Gough Island': 'UK territory and Atlantic Ocean',
+            'Inaccessible Island': 'UK territory and Atlantic Ocean',
+            'Nightingale Islands': 'UK territory and Atlantic Ocean',
+            'South Orkney Islands': 'UK territory and Southern Ocean',
+            'South Shetland Islands': 'UK territory and Southern Ocean',
+            'Peter I Island': 'Norwegian territory and Southern Ocean',
+            'Queen Maud Land': 'Norwegian territory and Antarctica',
+            'Ross Dependency': 'New Zealand territory and Antarctica',
+            'Australian Antarctic Territory': 'Australian territory and Antarctica',
+            'Adélie Land': 'French territory and Antarctica',
+            'Chilean Antarctic Territory': 'Chilean territory and Antarctica',
+            'Argentine Antarctica': 'Argentine territory and Antarctica',
+            'British Antarctic Territory': 'UK territory and Antarctica'
+        };
+
+        // Country emojis and descriptions cache (will be loaded from Supabase)
+        let countryEmojis = new Map();
+        let countryDescriptionsCache = new Map();
+        const DEFAULT_EMOJI = '🌍'; // Default emoji for all countries
+
+        // Load country emojis from Supabase
+        async function loadCountryEmojis() {
+            try {
+                if (!supabase) {
+                    console.log('Supabase not ready yet, will retry...');
+                    setTimeout(loadCountryEmojis, 1000);
+                    return;
+                }
+
+                console.log('Loading country emojis from Supabase...');
+                
+                // First, try to get existing emojis
+                const { data: existingEmojis, error: fetchError } = await supabase
+                    .from('country_emojis')
+                    .select('*');
+                
+                if (fetchError) {
+                    console.log('No country_emojis table found, creating default emojis...');
+                    await createDefaultEmojis();
+                    return;
+                }
+                
+                // Load existing emojis and descriptions into cache
+                if (existingEmojis && existingEmojis.length > 0) {
+                    existingEmojis.forEach(item => {
+                        countryEmojis.set(item.country_name, item.emoji);
+                        countryDescriptionsCache.set(item.country_name, item.description);
+                    });
+                    console.log(`Loaded ${existingEmojis.length} custom emojis and descriptions from Supabase`);
+                } else {
+                    console.log('No custom emojis found, creating defaults...');
+                    await createDefaultEmojis();
+                }
+
+                // Refresh map if it's already loaded
+                if (geoJSONLayer) {
+                    refreshMapEmojis();
+                }
+
+            } catch (error) {
+                console.error('Error loading country emojis:', error);
+                // Fallback to default emojis
+                await createDefaultEmojis();
+            }
+        }
+
+        // Create default emojis for all countries
+        async function createDefaultEmojis() {
+            try {
+                if (!supabase) {
+                    console.log('Supabase not ready, cannot create default emojis');
+                    return;
+                }
+
+                console.log('Creating default emojis for all countries...');
+                
+                // Prepare default emoji and description data
+                const defaultEmojiData = Object.keys(countryDescriptions).map(countryName => ({
+                    country_name: countryName,
+                    emoji: DEFAULT_EMOJI,
+                    description: countryDescriptions[countryName],
+                    created_at: new Date().toISOString(),
+                    updated_at: new Date().toISOString()
+                }));
+
+                // Insert default emojis
+                const { data, error } = await supabase
+                    .from('country_emojis')
+                    .insert(defaultEmojiData);
+
+                if (error) {
+                    console.error('Error creating default emojis:', error);
+                    // If table doesn't exist, we'll need to create it manually
+                    console.log('Please create the country_emojis table in Supabase with columns: country_name, emoji, created_at, updated_at');
+                    return;
+                }
+
+                console.log('Default emojis created successfully');
+                
+                // Load them into cache
+                defaultEmojiData.forEach(item => {
+                    countryEmojis.set(item.country_name, item.emoji);
+                    countryDescriptionsCache.set(item.country_name, item.description);
+                });
+
+                // Refresh map if it's already loaded
+                if (geoJSONLayer) {
+                    refreshMapEmojis();
+                }
+                
+            } catch (error) {
+                console.error('Error creating default emojis:', error);
+            }
+        }
+
+        // Update a country's emoji
+        async function updateCountryEmoji(countryName, newEmoji) {
+            try {
+                if (!supabase) {
+                    console.error('Supabase not ready');
+                    return false;
+                }
+
+                console.log(`Updating emoji for ${countryName} to ${newEmoji}`);
+
+                // Get current description
+                const currentDescription = countryDescriptionsCache.get(countryName) || countryDescriptions[countryName];
+
+                // Update in Supabase
+                const { data, error } = await supabase
+                    .from('country_emojis')
+                    .upsert({
+                        country_name: countryName,
+                        emoji: newEmoji,
+                        description: currentDescription,
+                        updated_at: new Date().toISOString()
+                    }, {
+                        onConflict: 'country_name'
+                    });
+
+                if (error) {
+                    console.error('Error updating emoji:', error);
+                    return false;
+                }
+
+                // Update local cache
+                countryEmojis.set(countryName, newEmoji);
+                
+                // Refresh map emojis
+                refreshMapEmojis();
+                
+                console.log(`Emoji updated successfully for ${countryName}`);
+                return true;
+                
+            } catch (error) {
+                console.error('Error updating country emoji:', error);
+                return false;
+            }
+        }
+
+        // Update a country's description
+        async function updateCountryDescription(countryName, newDescription) {
+            try {
+                if (!supabase) {
+                    console.error('Supabase not ready');
+                    return false;
+                }
+
+                console.log(`Updating description for ${countryName} to: ${newDescription}`);
+
+                // Get current emoji
+                const currentEmoji = countryEmojis.get(countryName) || DEFAULT_EMOJI;
+
+                // Update in Supabase
+                const { data, error } = await supabase
+                    .from('country_emojis')
+                    .upsert({
+                        country_name: countryName,
+                        emoji: currentEmoji,
+                        description: newDescription,
+                        updated_at: new Date().toISOString()
+                    }, {
+                        onConflict: 'country_name'
+                    });
+
+                if (error) {
+                    console.error('Error updating description:', error);
+                    return false;
+                }
+
+                // Update local cache
+                countryDescriptionsCache.set(countryName, newDescription);
+                
+                console.log(`Description updated successfully for ${countryName}`);
+                return true;
+                
+            } catch (error) {
+                console.error('Error updating country description:', error);
+                return false;
+            }
+        }
+
+        // Refresh emojis on the map
+        function refreshMapEmojis() {
+            if (!geoJSONLayer) return;
+
+            geoJSONLayer.eachLayer(function(layer) {
+                if (layer.feature && layer.feature.emojiMarkers) {
+                    // Remove old emoji markers
+                    layer.feature.emojiMarkers.forEach(marker => {
+                        worldMap.removeLayer(marker);
+                    });
+                    layer.feature.emojiMarkers = [];
+                }
+
+                // Add new emoji marker
+                const countryName = layer.feature.properties.name;
+                if (countryName) {
+                    const countryInfo = getCountryEmoji(countryName);
+                    const center = layer.getBounds().getCenter();
+                    
+                    const emojiMarker = L.marker(center, {
+                        icon: L.divIcon({
+                            className: 'country-emoji-marker',
+                            html: `<div class="emoji-marker">${countryInfo.emoji}</div>`,
+                            iconSize: [30, 30],
+                            iconAnchor: [15, 15]
+                        }),
+                        interactive: false
+                    });
+                    
+                    emojiMarker.addTo(worldMap);
+                    
+                    // Store reference for cleanup
+                    if (!layer.feature.emojiMarkers) {
+                        layer.feature.emojiMarkers = [];
+                    }
+                    layer.feature.emojiMarkers.push(emojiMarker);
+                }
+            });
+        }
+
+        // Change country emoji (called from emoji suggestion buttons)
+        async function changeCountryEmoji(countryName, newEmoji) {
+            const success = await updateCountryEmoji(countryName, newEmoji);
+            if (success) {
+                // Close the modal
+                const modal = document.querySelector('.country-info-modal');
+                if (modal) {
+                    modal.remove();
+                }
+                
+                // Show success message
+                showToast(`✅ Emoji updated for ${countryName}!`, 'success');
+            } else {
+                showToast(`❌ Failed to update emoji for ${countryName}`, 'error');
+            }
+        }
+
+        // Set custom emoji from input
+        async function setCustomEmoji(countryName) {
+            const inputId = `custom-emoji-${countryName.replace(/\s+/g, '-')}`;
+            const input = document.getElementById(inputId);
+            const customEmoji = input.value.trim();
+            
+            if (!customEmoji) {
+                showToast('Please enter an emoji', 'error');
+                return;
+            }
+            
+            // Validate that it's actually an emoji (basic check)
+            if (customEmoji.length > 2) {
+                showToast('Please enter a valid emoji (max 2 characters)', 'error');
+                return;
+            }
+            
+            const success = await updateCountryEmoji(countryName, customEmoji);
+            if (success) {
+                // Close the modal
+                const modal = document.querySelector('.country-info-modal');
+                if (modal) {
+                    modal.remove();
+                }
+                
+                // Show success message
+                showToast(`✅ Custom emoji set for ${countryName}!`, 'success');
+            } else {
+                showToast(`❌ Failed to set custom emoji for ${countryName}`, 'error');
+            }
+        }
+
+        // Set custom description from input
+        async function setCustomDescription(countryName) {
+            const textareaId = `custom-description-${countryName.replace(/\s+/g, '-')}`;
+            const textarea = document.getElementById(textareaId);
+            const customDescription = textarea.value.trim();
+            
+            if (!customDescription) {
+                showToast('Please enter a description', 'error');
+                return;
+            }
+            
+            // Validate description length
+            if (customDescription.length > 200) {
+                showToast('Description is too long (max 200 characters)', 'error');
+                return;
+            }
+            
+            const success = await updateCountryDescription(countryName, customDescription);
+            if (success) {
+                // Show success message
+                showToast(`✅ Description updated for ${countryName}!`, 'success');
+                
+                // Update the description in the modal
+                const descriptionElement = document.querySelector('.country-description-large');
+                if (descriptionElement) {
+                    descriptionElement.textContent = customDescription;
+                }
+            } else {
+                showToast(`❌ Failed to update description for ${countryName}`, 'error');
+            }
+        }
+
+        // Show toast notification
+        function showToast(message, type = 'info') {
+            const toast = document.createElement('div');
+            toast.className = `toast-notification toast-${type}`;
+            toast.textContent = message;
+            
+            // Add styles
+            toast.style.cssText = `
+                position: fixed;
+                top: 20px;
+                right: 20px;
+                background: ${type === 'success' ? '#22c55e' : type === 'error' ? '#ef4444' : '#3b82f6'};
+                color: white;
+                padding: 12px 20px;
+                border-radius: 8px;
+                font-family: 'Inter', sans-serif;
+                font-size: 14px;
+                z-index: 10001;
+                box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+                animation: slideIn 0.3s ease;
+            `;
+            
+            document.body.appendChild(toast);
+            
+            // Remove after 3 seconds
+            setTimeout(() => {
+                toast.remove();
+            }, 3000);
+        }
+
+        // Get emoji and description for a country
+        function getCountryEmoji(countryName) {
+            const emoji = countryEmojis.get(countryName) || DEFAULT_EMOJI;
+            const description = countryDescriptionsCache.get(countryName) || countryDescriptions[countryName] || 'A beautiful country';
+            return { emoji, description };
+        }
+
+
+
+        // Show country info interface with emoji editing
+        function showCountryInfo(countryName, countryInfo) {
+            // Create a modal to show country information
+            const modal = document.createElement('div');
+            modal.className = 'country-info-modal';
+            modal.innerHTML = `
+                <div class="country-info-content">
+                    <div class="country-info-header">
+                        <h2>${countryName}</h2>
+                        <button class="close-btn" onclick="this.closest('.country-info-modal').remove()">&times;</button>
+                    </div>
+                    
+                    <div class="country-info-body">
+                        <div class="country-display">
+                            <div class="country-emoji-large">${countryInfo.emoji}</div>
+                            <div class="country-description-large">${countryInfo.description}</div>
+                        </div>
+                        
+                        <div class="editors-container">
+                            <div class="emoji-editor">
+                                <h3>Change Emoji</h3>
+                                <div class="emoji-suggestions">
+                                    <button class="emoji-suggestion" onclick="changeCountryEmoji('${countryName}', '🥖')">🥖</button>
+                                    <button class="emoji-suggestion" onclick="changeCountryEmoji('${countryName}', '🍺')">🍺</button>
+                                    <button class="emoji-suggestion" onclick="changeCountryEmoji('${countryName}', '🍕')">🍕</button>
+                                    <button class="emoji-suggestion" onclick="changeCountryEmoji('${countryName}', '🥘')">🥘</button>
+                                    <button class="emoji-suggestion" onclick="changeCountryEmoji('${countryName}', '🐻')">🐻</button>
+                                    <button class="emoji-suggestion" onclick="changeCountryEmoji('${countryName}', '🐉')">🐉</button>
+                                    <button class="emoji-suggestion" onclick="changeCountryEmoji('${countryName}', '🗾')">🗾</button>
+                                    <button class="emoji-suggestion" onclick="changeCountryEmoji('${countryName}', '🕉️')">🕉️</button>
+                                    <button class="emoji-suggestion" onclick="changeCountryEmoji('${countryName}', '🦘')">🦘</button>
+                                    <button class="emoji-suggestion" onclick="changeCountryEmoji('${countryName}', '🦁')">🦁</button>
+                                    <button class="emoji-suggestion" onclick="changeCountryEmoji('${countryName}', '🏺')">🏺</button>
+                                    <button class="emoji-suggestion" onclick="changeCountryEmoji('${countryName}', '🎭')">🎭</button>
+                                    <button class="emoji-suggestion" onclick="changeCountryEmoji('${countryName}', '🦒')">🦒</button>
+                                    <button class="emoji-suggestion" onclick="changeCountryEmoji('${countryName}', '🐪')">🐪</button>
+                                    <button class="emoji-suggestion" onclick="changeCountryEmoji('${countryName}', '🕌')">🕌</button>
+                                    <button class="emoji-suggestion" onclick="changeCountryEmoji('${countryName}', '🍷')">🍷</button>
+                                    <button class="emoji-suggestion" onclick="changeCountryEmoji('${countryName}', '🦙')">🦙</button>
+                                    <button class="emoji-suggestion" onclick="changeCountryEmoji('${countryName}', '🌊')">🌊</button>
+                                    <button class="emoji-suggestion" onclick="changeCountryEmoji('${countryName}', '🌋')">🌋</button>
+                                    <button class="emoji-suggestion" onclick="changeCountryEmoji('${countryName}', '🐟')">🐟</button>
+                                    <button class="emoji-suggestion" onclick="changeCountryEmoji('${countryName}', '🌷')">🌷</button>
+                                    <button class="emoji-suggestion" onclick="changeCountryEmoji('${countryName}', '🍫')">🍫</button>
+                                    <button class="emoji-suggestion" onclick="changeCountryEmoji('${countryName}', '🏔️')">🏔️</button>
+                                    <button class="emoji-suggestion" onclick="changeCountryEmoji('${countryName}', '🎵')">🎵</button>
+                                    <button class="emoji-suggestion" onclick="changeCountryEmoji('${countryName}', '🥟')">🥟</button>
+                                    <button class="emoji-suggestion" onclick="changeCountryEmoji('${countryName}', '🛁')">🛁</button>
+                                    <button class="emoji-suggestion" onclick="changeCountryEmoji('${countryName}', '🏰')">🏰</button>
+                                    <button class="emoji-suggestion" onclick="changeCountryEmoji('${countryName}', '🌹')">🌹</button>
+                                    <button class="emoji-suggestion" onclick="changeCountryEmoji('${countryName}', '🏛️')">🏛️</button>
+                                    <button class="emoji-suggestion" onclick="changeCountryEmoji('${countryName}', '🌻')">🌻</button>
+                                    <button class="emoji-suggestion" onclick="changeCountryEmoji('${countryName}', '🌲')">🌲</button>
+                                    <button class="emoji-suggestion" onclick="changeCountryEmoji('${countryName}', '🌾')">🌾</button>
+                                    <button class="emoji-suggestion" onclick="changeCountryEmoji('${countryName}', '🐎')">🐎</button>
+                                    <button class="emoji-suggestion" onclick="changeCountryEmoji('${countryName}', '🥝')">🥝</button>
+                                    <button class="emoji-suggestion" onclick="changeCountryEmoji('${countryName}', '🌺')">🌺</button>
+                                    <button class="emoji-suggestion" onclick="changeCountryEmoji('${countryName}', '🌍')">🌍</button>
+                                </div>
+                                <div class="custom-emoji-input">
+                                    <input type="text" id="custom-emoji-${countryName.replace(/\s+/g, '-')}" placeholder="Or type custom emoji (e.g., 🚀)" maxlength="2" class="emoji-input">
+                                    <button onclick="setCustomEmoji('${countryName}')" class="set-emoji-btn">Set Custom</button>
+                                </div>
+                            </div>
+                            
+                            <div class="description-editor">
+                                <h3>Change Description</h3>
+                                <div class="description-input-container">
+                                    <textarea id="custom-description-${countryName.replace(/\s+/g, '-')}" placeholder="Enter a new description for ${countryName}" class="description-input" rows="3" maxlength="200">${countryInfo.description}</textarea>
+                                    <button onclick="setCustomDescription('${countryName}')" class="set-description-btn">Update Description</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `;
+            
+            // Add styles
+            modal.style.cssText = `
+                position: fixed;
+                top: 0;
+                left: 0;
+                width: 100%;
+                height: 100%;
+                background: rgba(0, 0, 0, 0.8);
+                display: flex;
+                justify-content: center;
+                align-items: center;
+                z-index: 10000;
+            `;
+            
+            document.body.appendChild(modal);
+            
+            // Close on background click
+            modal.addEventListener('click', function(e) {
+                if (e.target === modal) {
+                    modal.remove();
+                }
+            });
+        }
+        
+
+        
+
+        
+
+        
+
+        
+
+        
+        // Helper function to create polygon path
+        function createPolygonPath(coordinates) {
+            if (!coordinates || coordinates.length === 0) return '';
+            
+            let path = 'M ';
+            coordinates.forEach((coord, index) => {
+                if (index === 0) {
+                    path += `${coord[0]} ${coord[1]}`;
+                } else {
+                    path += ` L ${coord[0]} ${coord[1]}`;
+                }
+            });
+            path += ' Z';
+            return path;
+        }
+        
+        // Helper function to create multipolygon path
+        function createMultiPolygonPath(coordinates) {
+            if (!coordinates || coordinates.length === 0) return '';
+            
+            let path = '';
+            coordinates.forEach(polygon => {
+                if (polygon && polygon[0]) {
+                    path += createPolygonPath(polygon[0]) + ' ';
+                }
+            });
+            return path.trim();
+        }
+
+        // Close country upload modal
+
+
+
+        
+
+
+        // Upload country image
+        async function uploadCountryImage() {
+            const fileInput = document.getElementById('country-image-upload');
+            const urlInput = document.getElementById('country-image-url');
+            const statusDiv = document.getElementById('upload-status');
+            const countryName = document.getElementById('upload-country-name').textContent.replace('Upload Image for ', '');
+            
+            let imageUrl = '';
+            
+            // Check if file is selected
+            if (fileInput.files.length > 0) {
+                const file = fileInput.files[0];
+                // For now, we'll use a reliable placeholder URL
+                imageUrl = getReliablePlaceholder(countryName);
+                statusDiv.textContent = 'File upload feature requires Supabase Storage setup. Using reliable placeholder image.';
+            } else if (urlInput.value.trim()) {
+                imageUrl = urlInput.value.trim();
+            } else {
+                statusDiv.textContent = 'Please select a file or enter an image URL.';
+                statusDiv.style.display = 'block';
+                statusDiv.style.background = '#ef4444';
+                return;
+            }
+            
+            try {
+                console.log('Attempting to save image for country:', countryName, 'URL:', imageUrl);
+                
+                // Validate the image URL first
+                statusDiv.textContent = 'Validating image URL...';
+                statusDiv.style.background = '#f59e0b';
+                statusDiv.style.display = 'block';
+                
+                const isValidImage = await validateImageUrl(imageUrl);
+                if (!isValidImage) {
+                    console.warn('Image URL validation failed, but continuing...');
+                    statusDiv.textContent = 'Warning: Image URL validation failed, but saving anyway...';
+                    statusDiv.style.background = '#f59e0b';
+                }
+                
+                // First try to insert, if it fails due to conflict, then update
+                console.log('Attempting to insert new country image...');
+                let { data, error } = await supabase
+                    .from('country_images')
+                    .insert({
+                        country_name: countryName,
+                        image_url: imageUrl
+                    });
+                
+                console.log('Insert result:', { data, error });
+                
+                // If insert fails due to duplicate, try update
+                if (error && error.code === '23505') { // Unique constraint violation
+                    console.log('Country already exists, updating...');
+                    const { data: updateData, error: updateError } = await supabase
+                        .from('country_images')
+                        .update({ image_url: imageUrl })
+                        .eq('country_name', countryName);
+                    
+                    console.log('Update result:', { data: updateData, error: updateError });
+                    
+                    if (updateError) {
+                        throw updateError;
+                    }
+                    data = updateData;
+                } else if (error) {
+                    throw error;
+                }
+                
+                // Update local cache
+                countryImages.set(countryName.toLowerCase(), imageUrl);
+                
+                // Show success message
+                statusDiv.textContent = 'Image uploaded successfully!';
+                statusDiv.style.background = '#22c55e';
+                statusDiv.style.display = 'block';
+                
+                // Close modal after 2 seconds
+                setTimeout(() => {
+                    closeCountryUploadModal();
+                    // Refresh the map to show the new image
+                    if (geoJSONLayer) {
+                        console.log('Refreshing map to show new image...');
+                        // Remove current layer and reload
+                        worldMap.removeLayer(geoJSONLayer);
+                        geoJSONLayer = null;
+                        // Reload after a short delay
+                        setTimeout(() => {
+                            toggleGeoJSON();
+                        }, 500);
+                    }
+                }, 2000);
+                
+            } catch (error) {
+                console.error('Error uploading country image:', error);
+                console.error('Error details:', {
+                    message: error.message,
+                    code: error.code,
+                    details: error.details,
+                    hint: error.hint
+                });
+                
+                let errorMessage = 'Error uploading image. Please try again.';
+                if (error.message) {
+                    errorMessage = `Error: ${error.message}`;
+                }
+                
+                statusDiv.textContent = errorMessage;
+                statusDiv.style.background = '#ef4444';
+                statusDiv.style.display = 'block';
+            }
+        }
+
+        // Toggle GeoJSON countries layer
+        function toggleGeoJSON() {
+            if (geoJSONLayer) {
+                // Remove all emoji markers when hiding the layer
+                if (geoJSONLayer.eachLayer) {
+                    geoJSONLayer.eachLayer(function(layer) {
+                        if (layer.feature && layer.feature.emojiMarkers) {
+                            layer.feature.emojiMarkers.forEach(marker => {
+                                worldMap.removeLayer(marker);
+                            });
+                        }
+                    });
+                }
+                worldMap.removeLayer(geoJSONLayer);
+                geoJSONLayer = null;
+            } else {
+                // Load the actual countries.geojson file
+                fetch('countries.geojson')
+                    .then(response => response.json())
+                    .then(data => {
+                        geoJSONLayer = L.geoJSON(data, {
+                            style: {
+                                color: '#ffffff',
+                                weight: 1,
+                                opacity: 0.8,
+                                fillOpacity: 0.1
+                            },
+                            onEachFeature: function(feature, layer) {
+                                const countryName = feature.properties.name;
+                                
+                                // Add hover effects
+                                layer.on({
+                                    mouseover: function(e) {
+                                        e.target.setStyle({
+                                            color: '#ffffff',
+                                            weight: 2,
+                                            fillOpacity: 0.3
+                                        });
+                                        
+                                        // Show country info tooltip
+                                        const countryInfo = getCountryEmoji(countryName);
+                                        const tooltip = L.tooltip({
+                                            permanent: false,
+                                            direction: 'top',
+                                            className: 'country-tooltip'
+                                        })
+                                        .setContent(`
+                                            <div class="country-tooltip-content">
+                                                <div class="country-emoji">${countryInfo.emoji}</div>
+                                                <div class="country-name">${countryName}</div>
+                                                <div class="country-description">${countryInfo.description}</div>
+                                            </div>
+                                        `)
+                                        .setLatLng(e.latlng);
+                                        
+                                        layer.bindTooltip(tooltip);
+                                        layer.openTooltip();
+                                    },
+                                    mouseout: function(e) {
+                                        geoJSONLayer.resetStyle(e.target);
+                                        layer.closeTooltip();
+                                    }
+                                });
+                                
+                                // Add country emoji marker at center
+                                if (countryName) {
+                                    const countryInfo = getCountryEmoji(countryName);
+                                    const center = layer.getBounds().getCenter();
+                                    
+                                    const emojiMarker = L.marker(center, {
+                                        icon: L.divIcon({
+                                            className: 'country-emoji-marker',
+                                            html: `<div class="emoji-marker">${countryInfo.emoji}</div>`,
+                                            iconSize: [30, 30],
+                                            iconAnchor: [15, 15]
+                                        }),
+                                        interactive: false
+                                    });
+                                    
+                                    emojiMarker.addTo(worldMap);
+                                    
+                                    // Store reference for cleanup
+                                    if (!feature.emojiMarkers) {
+                                        feature.emojiMarkers = [];
+                                    }
+                                    feature.emojiMarkers.push(emojiMarker);
+                                }
+                                
+                                // Add click event to show country info
+                                layer.on('click', function(e) {
+                                    const countryInfo = getCountryEmoji(countryName);
+                                    showCountryInfo(countryName, countryInfo);
+                                });
+                            }
+                        }).addTo(worldMap);
+                    })
+                    .catch(error => {
+                        console.error('Error loading countries data:', error);
+                    });
+            }
+        }
+
+        // Reset map view
+
     </script>
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/tsparticles@2.12.0/tsparticles.bundle.min.js"></script>

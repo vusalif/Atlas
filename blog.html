@@ -1,0 +1,380 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Blog - Atlas | Interactive Geography Learning Platform</title>
+    
+    <!-- Favicons -->
+    <link rel="icon" type="image/png" sizes="48x48" href="icon48x48.png">
+    <link rel="icon" type="image/png" sizes="512x512" href="icon512x512.png">
+    <link rel="apple-touch-icon" href="icon512x512.png">
+    
+    <!-- SEO Meta Tags -->
+    <meta name="description" content="Explore the latest geography learning insights, educational tips, and platform updates from Atlas. Discover effective learning strategies, new features, and community highlights for geography education.">
+    <meta name="keywords" content="geography learning, educational blog, geography education, interactive learning, world geography, learning strategies, educational tips, geography games, Atlas platform, geography community, learning science, daily puzzles, football mode, accessibility in education">
+    <meta name="author" content="Atlas Team">
+    <meta name="robots" content="index, follow">
+    <meta name="language" content="English">
+    <meta name="revisit-after" content="7 days">
+    
+    <!-- Open Graph Meta Tags -->
+    <meta property="og:title" content="Blog - Atlas Geography Learning Platform">
+    <meta property="og:description" content="Latest updates, tips, and insights about geography learning and the Atlas platform. Discover effective learning strategies and educational content.">
+    <meta property="og:image" content="preview.png">
+    <meta property="og:url" content="https://atlas.killmytime.fun/blog.html">
+    <meta property="og:type" content="website">
+    <meta property="og:site_name" content="Atlas">
+    <meta property="og:locale" content="en_US">
+    
+    <!-- Twitter Card Meta Tags -->
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="Blog - Atlas Geography Learning Platform">
+    <meta name="twitter:description" content="Latest updates, tips, and insights about geography learning and the Atlas platform. Discover effective learning strategies and educational content.">
+    <meta name="twitter:image" content="preview.png">
+    
+    <!-- Canonical tag -->
+    <link rel="canonical" href="https://atlas.killmytime.fun/blog.html">
+    
+    <!-- Schema.org Structured Data -->
+    <script type="application/ld+json">
+    {
+        "@context": "https://schema.org",
+        "@type": "Blog",
+        "name": "Atlas Geography Learning Blog",
+        "description": "Latest updates, tips, and insights about geography learning and the Atlas platform",
+        "url": "https://atlas.killmytime.fun/blog.html",
+        "publisher": {
+            "@type": "Organization",
+            "name": "Atlas",
+            "url": "https://atlas.killmytime.fun"
+        },
+        "mainEntity": {
+            "@type": "ItemList",
+            "itemListElement": [
+                {
+                    "@type": "BlogPosting",
+                    "position": 1,
+                    "name": "Introducing Daily Geography Puzzles",
+                    "url": "https://atlas.killmytime.fun/blog/daily-geography-puzzles.html"
+                },
+                {
+                    "@type": "BlogPosting",
+                    "position": 2,
+                    "name": "The Science Behind Effective Geography Learning",
+                    "url": "https://atlas.killmytime.fun/blog/science-behind-geography-learning.html"
+                },
+                {
+                    "@type": "BlogPosting",
+                    "position": 3,
+                    "name": "How Football Mode Makes Geography Fun",
+                    "url": "https://atlas.killmytime.fun/blog/football-mode-geography-fun.html"
+                }
+            ]
+        }
+    }
+    </script>
+    
+    <!-- Inter Font -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            line-height: 1.6;
+            color: #000;
+            background: #fff;
+            font-weight: 400;
+        }
+        
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+        
+        .header {
+            padding: 60px 0 40px;
+            border-bottom: 1px solid #000;
+            margin-bottom: 60px;
+        }
+        
+        .header h1 {
+            font-size: 48px;
+            font-weight: 700;
+            margin-bottom: 16px;
+            letter-spacing: -0.02em;
+        }
+        
+        .header p {
+            font-size: 18px;
+            font-weight: 400;
+            color: #333;
+            max-width: 600px;
+        }
+        
+        .back-link {
+            display: inline-block;
+            margin-bottom: 40px;
+            padding: 12px 24px;
+            background: #000;
+            color: #fff;
+            text-decoration: none;
+            font-weight: 500;
+            font-size: 14px;
+            transition: background 0.2s ease;
+        }
+        
+        .back-link:hover {
+            background: #333;
+        }
+        
+        .posts {
+            margin-bottom: 80px;
+        }
+        
+        .post {
+            margin-bottom: 60px;
+            padding-bottom: 40px;
+            border-bottom: 1px solid #e5e5e5;
+        }
+        
+        .post:last-child {
+            border-bottom: none;
+        }
+        
+        .post-meta {
+            font-size: 14px;
+            color: #666;
+            margin-bottom: 16px;
+            font-weight: 400;
+        }
+        
+        .post-title {
+            font-size: 32px;
+            font-weight: 700;
+            margin-bottom: 20px;
+            line-height: 1.2;
+            letter-spacing: -0.02em;
+        }
+        
+        .post-excerpt {
+            font-size: 18px;
+            line-height: 1.7;
+            color: #333;
+            margin-bottom: 24px;
+        }
+        
+        .post-tags {
+            display: flex;
+            gap: 12px;
+            flex-wrap: wrap;
+        }
+        
+        .tag {
+            padding: 6px 12px;
+            background: #f5f5f5;
+            color: #000;
+            font-size: 12px;
+            font-weight: 500;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+        
+        .read-more {
+            display: inline-block;
+            margin-top: 20px;
+            padding: 12px 24px;
+            background: #000;
+            color: #fff;
+            text-decoration: none;
+            font-weight: 500;
+            font-size: 14px;
+            transition: background 0.2s ease;
+        }
+        
+        .read-more:hover {
+            background: #333;
+        }
+        
+        .newsletter {
+            background: #f9f9f9;
+            padding: 40px;
+            margin: 60px 0;
+            border: 1px solid #e5e5e5;
+        }
+        
+        .newsletter h3 {
+            font-size: 24px;
+            font-weight: 600;
+            margin-bottom: 16px;
+        }
+        
+        .newsletter p {
+            margin-bottom: 24px;
+            color: #333;
+        }
+        
+        .newsletter-form {
+            display: flex;
+            gap: 12px;
+            max-width: 400px;
+        }
+        
+        .newsletter-input {
+            flex: 1;
+            padding: 12px 16px;
+            border: 1px solid #000;
+            font-family: 'Inter', sans-serif;
+            font-size: 14px;
+        }
+        
+        .newsletter-button {
+            padding: 12px 24px;
+            background: #000;
+            color: #fff;
+            border: none;
+            font-family: 'Inter', sans-serif;
+            font-weight: 500;
+            font-size: 14px;
+            cursor: pointer;
+            transition: background 0.2s ease;
+        }
+        
+        .newsletter-button:hover {
+            background: #333;
+        }
+        
+        .footer {
+            padding: 40px 0;
+            border-top: 1px solid #e5e5e5;
+            text-align: center;
+            color: #666;
+            font-size: 14px;
+        }
+        
+        @media (max-width: 768px) {
+            .container {
+                padding: 0 16px;
+            }
+            
+            .header {
+                padding: 40px 0 30px;
+                margin-bottom: 40px;
+            }
+            
+            .header h1 {
+                font-size: 36px;
+            }
+            
+            .post-title {
+                font-size: 28px;
+            }
+            
+            .newsletter {
+                padding: 30px 20px;
+            }
+            
+            .newsletter-form {
+                flex-direction: column;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <a href="index.html" class="back-link">← Back to Atlas</a>
+        
+        <header class="header">
+            <h1>Blog</h1>
+            <p>Latest updates, tips, and insights about geography learning and the Atlas platform. Stay informed about new features, educational content, and community highlights.</p>
+        </header>
+        
+        <main class="posts">
+            <article class="post">
+                <div class="post-meta">August 22, 2025 • 5 min read</div>
+                <h2 class="post-title">Introducing Daily Geography Puzzles</h2>
+                <p class="post-excerpt">
+                    We're excited to announce our new daily puzzle system! Every three days, players can challenge themselves with a new country to identify. This feature adds a competitive element while helping users build consistent geography practice habits.
+                </p>
+                <div class="post-tags">
+                    <span class="tag">New Feature</span>
+                    <span class="tag">Daily Puzzles</span>
+                    <span class="tag">Learning</span>
+                </div>
+                <a href="blog/daily-geography-puzzles.html" class="read-more">Read More</a>
+            </article>
+            
+            <article class="post">
+                <div class="post-meta">August 20, 2025 • 3 min read</div>
+                <h2 class="post-title">The Science Behind Effective Geography Learning</h2>
+                <p class="post-excerpt">
+                    Research shows that interactive learning methods significantly improve retention rates. Our approach combines visual mapping, gamification, and spaced repetition to create an optimal learning environment for geography education.
+                </p>
+                <div class="post-tags">
+                    <span class="tag">Research</span>
+                    <span class="tag">Education</span>
+                    <span class="tag">Learning Science</span>
+                </div>
+                <a href="blog/science-behind-geography-learning.html" class="read-more">Read More</a>
+            </article>
+            
+            <article class="post">
+                <div class="post-meta">August 18, 2025 • 4 min read</div>
+                <h2 class="post-title">How Football Mode Makes Geography Fun</h2>
+                <p class="post-excerpt">
+                    Discover how we're using the universal language of football to teach geography. By connecting famous clubs to their countries, players develop a deeper understanding of world geography through something they already love.
+                </p>
+                <div class="post-tags">
+                    <span class="tag">Football Mode</span>
+                    <span class="tag">Innovation</span>
+                    <span class="tag">Sports</span>
+                </div>
+                <a href="blog/football-mode-geography-fun.html" class="read-more">Read More</a>
+            </article>
+            
+            <article class="post">
+                <div class="post-meta">August 15, 2025 • 6 min read</div>
+                <h2 class="post-title">Building a Global Geography Community</h2>
+                <p class="post-excerpt">
+                    Our leaderboard system isn't just about competition—it's about building connections. Players from around the world are sharing strategies, celebrating achievements, and forming study groups to improve their geography knowledge together.
+                </p>
+                <div class="post-tags">
+                    <span class="tag">Community</span>
+                    <span class="tag">Leaderboard</span>
+                    <span class="tag">Global</span>
+                </div>
+                <a href="#" class="read-more">Read More</a>
+            </article>
+            
+            <article class="post">
+                <div class="post-meta">August 12, 2025 • 4 min read</div>
+                <h2 class="post-title">Accessibility First: Making Atlas Available to Everyone</h2>
+                <p class="post-excerpt">
+                    We believe geography education should be accessible to all. Learn about the accessibility features we've implemented, from keyboard navigation to screen reader support, ensuring everyone can enjoy learning about our world.
+                </p>
+                <div class="post-tags">
+                    <span class="tag">Accessibility</span>
+                    <span class="tag">Inclusion</span>
+                    <span class="tag">Design</span>
+                </div>
+                <a href="#" class="read-more">Read More</a>
+            </article>
+        </main>
+        
+
+        
+        <footer class="footer">
+            <p>&copy; 2025 Atlas - Interactive Geography Learning</p>
+        </footer>
+    </div>
+</body>
+</html>

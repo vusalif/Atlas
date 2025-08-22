@@ -1,0 +1,19 @@
+User-agent: *
+Allow: /
+
+# Sitemap location
+Sitemap: https://atlas.killmytime.fun/sitemap.xml
+
+# Disallow admin or private areas (if you have any)
+# Disallow: /admin/
+# Disallow: /private/
+
+# Allow all game pages
+Allow: /*.html
+Allow: /gifs/
+Allow: /*.png
+Allow: /*.jpg
+Allow: /*.gif
+
+# Crawl delay (optional - be respectful to servers)
+Crawl-delay: 1

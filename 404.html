@@ -1,0 +1,412 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>404 Page Not Found - Atlas Geography Learning Platform</title>
+    
+    <!-- SEO Meta Tags -->
+    <meta name="description" content="Page not found on Atlas geography learning platform. Return to interactive geography games, daily puzzles, and educational content.">
+    <meta name="keywords" content="404 error, page not found, Atlas geography, geography learning, educational games, world geography">
+    <meta name="author" content="Atlas Team">
+    <meta name="robots" content="noindex, nofollow">
+    <meta name="language" content="English">
+    
+    <!-- Favicons -->
+    <link rel="icon" type="image/png" sizes="48x48" href="icon48x48.png">
+    <link rel="icon" type="image/png" sizes="512x512" href="icon512x512.png">
+    <link rel="apple-touch-icon" href="icon512x512.png">
+    
+    <!-- Inter Font -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: #000;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #fff;
+        }
+        
+        .container {
+            text-align: center;
+            max-width: 100%;
+            padding: 0;
+        }
+        
+        .error-code {
+            font-size: 8rem;
+            font-weight: 700;
+            margin-bottom: 1rem;
+            letter-spacing: -0.02em;
+            position: absolute;
+            top: 20%;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 10;
+        }
+        
+        .game-section {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: #000;
+            color: #fff;
+            padding: 0;
+            margin: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .game-section h3 {
+            font-size: 1.5rem;
+            font-weight: 600;
+            margin-bottom: 1rem;
+            letter-spacing: -0.01em;
+            position: absolute;
+            top: 40%;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 10;
+        }
+        
+        .game-container {
+            width: 100%;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .game-info {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translateX(-50%);
+            text-align: center;
+            z-index: 10;
+        }
+        
+        .game-info p {
+            margin-bottom: 0.5rem;
+            font-size: 14px;
+            line-height: 1.5;
+        }
+        
+        .game-controls {
+            position: absolute;
+            bottom: 30%;
+            left: 50%;
+            transform: translateX(-50%);
+            display: flex;
+            gap: 1rem;
+            z-index: 10;
+        }
+        
+        .game-btn {
+            padding: 12px 24px;
+            background: #fff;
+            color: #000;
+            border: 1px solid #fff;
+            font-family: 'Inter', sans-serif;
+            font-weight: 500;
+            font-size: 14px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+        
+        .game-btn:hover {
+            background: #000;
+            color: #fff;
+        }
+        
+        .game-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+        
+        .score-display {
+            position: absolute;
+            top: 60%;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 14px;
+            font-weight: 500;
+            z-index: 10;
+        }
+        
+        .back-link {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            padding: 12px 24px;
+            background: #fff;
+            color: #000;
+            text-decoration: none;
+            border: 1px solid #fff;
+            font-family: 'Inter', sans-serif;
+            font-weight: 500;
+            font-size: 14px;
+            transition: all 0.2s ease;
+            z-index: 10;
+        }
+        
+        .back-link:hover {
+            background: #000;
+            color: #fff;
+        }
+        
+        #gameCanvas {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 1;
+        }
+        
+
+        
+        @media (max-width: 768px) {
+            .error-code {
+                font-size: 6rem;
+            }
+            
+            .game-controls {
+                flex-direction: column;
+                align-items: center;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="error-code">404</div>
+        
+        <div class="game-section">
+            <h3>🐍 Snake Game</h3>
+            <div class="game-container">
+                <div class="game-info">
+                    <p>Play a simple snake game while you're here! Use arrow keys to control the white snake and eat the red food squares.</p>
+                </div>
+                
+                <div class="score-display">
+                    Score: <span id="score">0</span>
+                </div>
+                
+                <canvas id="gameCanvas"></canvas>
+                
+                <div class="game-controls">
+                    <button class="game-btn" id="start-btn">Start Game</button>
+                    <button class="game-btn" id="reset-btn" style="display: none;">Reset</button>
+                </div>
+            </div>
+        </div>
+        
+        <a href="index.html" class="back-link">🏠 Return to Atlas</a>
+    </div>
+
+    <script>
+        // Simple Snake Game
+        const canvas = document.getElementById('gameCanvas');
+        const ctx = canvas.getContext('2d');
+        const startBtn = document.getElementById('start-btn');
+        const resetBtn = document.getElementById('reset-btn');
+        const scoreElement = document.getElementById('score');
+        
+        // Set canvas to full page size
+        function resizeCanvas() {
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+        }
+        
+        // Initialize canvas size
+        resizeCanvas();
+        window.addEventListener('resize', resizeCanvas);
+        
+        const gridSize = 20;
+        let tileCountX, tileCountY;
+        
+        let snake = [
+            {x: 10, y: 10}
+        ];
+        let food = {x: 15, y: 15};
+        let dx = 0;
+        let dy = 0;
+        let score = 0;
+        let gameRunning = false;
+        let gameLoop;
+        
+        function updateTileCount() {
+            tileCountX = Math.floor(canvas.width / gridSize);
+            tileCountY = Math.floor(canvas.height / gridSize);
+        }
+        
+        function drawGame() {
+            // Clear canvas
+            ctx.fillStyle = '#000';
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+            
+            // Draw snake (white)
+            ctx.fillStyle = '#fff';
+            snake.forEach(segment => {
+                ctx.fillRect(segment.x * gridSize, segment.y * gridSize, gridSize - 2, gridSize - 2);
+            });
+            
+            // Draw food (red)
+            ctx.fillStyle = '#ff0000';
+            ctx.fillRect(food.x * gridSize, food.y * gridSize, gridSize - 2, gridSize - 2);
+        }
+        
+        function moveSnake() {
+            const head = {x: snake[0].x + dx, y: snake[0].y + dy};
+            
+            // Check wall collision
+            if (head.x < 0 || head.x >= tileCountX || head.y < 0 || head.y >= tileCountY) {
+                gameOver();
+                return;
+            }
+            
+            // Check self collision (only if snake has more than 1 segment)
+            if (snake.length > 1 && snake.some(segment => segment.x === head.x && segment.y === head.y)) {
+                gameOver();
+                return;
+            }
+            
+            snake.unshift(head);
+            
+            // Check food collision
+            if (head.x === food.x && head.y === food.y) {
+                score += 10;
+                scoreElement.textContent = score;
+                generateFood();
+            } else {
+                snake.pop();
+            }
+        }
+        
+        function generateFood() {
+            food = {
+                x: Math.floor(Math.random() * tileCountX),
+                y: Math.floor(Math.random() * tileCountY)
+            };
+            
+            // Make sure food doesn't spawn on snake
+            while (snake.some(segment => segment.x === food.x && segment.y === food.y)) {
+                food = {
+                    x: Math.floor(Math.random() * tileCountX),
+                    y: Math.floor(Math.random() * tileCountY)
+                };
+            }
+        }
+        
+        function gameOver() {
+            gameRunning = false;
+            clearInterval(gameLoop);
+            alert(`Game Over! Final Score: ${score}`);
+            showStartButton();
+        }
+        
+        function showStartButton() {
+            startBtn.style.display = 'inline-block';
+            resetBtn.style.display = 'none';
+            // Show game info elements
+            document.querySelector('.game-section h3').style.display = 'block';
+            document.querySelector('.game-info').style.display = 'block';
+            document.querySelector('.score-display').style.display = 'block';
+        }
+        
+        function hideStartButton() {
+            startBtn.style.display = 'none';
+            resetBtn.style.display = 'inline-block';
+            // Hide game info elements
+            document.querySelector('.game-section h3').style.display = 'none';
+            document.querySelector('.game-info').style.display = 'none';
+            document.querySelector('.score-display').style.display = 'none';
+        }
+        
+        function startGame() {
+            if (gameRunning) return;
+            
+            // Reset game state
+            snake = [{x: 10, y: 10}];
+            food = {x: 15, y: 15};
+            dx = 1; // Start moving right
+            dy = 0;
+            score = 0;
+            scoreElement.textContent = score;
+            
+            // Update tile count for current canvas size
+            updateTileCount();
+            
+            // Hide start button, show reset button
+            hideStartButton();
+            
+            // Start game loop
+            gameRunning = true;
+            gameLoop = setInterval(() => {
+                moveSnake();
+                drawGame();
+            }, 150);
+        }
+        
+        function resetGame() {
+            clearInterval(gameLoop);
+            gameRunning = false;
+            snake = [{x: 10, y: 10}];
+            food = {x: 15, y: 15};
+            dx = 1; // Start moving right
+            dy = 0;
+            score = 0;
+            scoreElement.textContent = score;
+            updateTileCount();
+            drawGame();
+            showStartButton();
+        }
+        
+        // Event listeners
+        startBtn.addEventListener('click', startGame);
+        resetBtn.addEventListener('click', resetGame);
+        
+        // Keyboard controls
+        document.addEventListener('keydown', (e) => {
+            if (!gameRunning) return;
+            
+            switch(e.key) {
+                case 'ArrowUp':
+                    if (dy !== 1) { dx = 0; dy = -1; }
+                    break;
+                case 'ArrowDown':
+                    if (dy !== -1) { dx = 0; dy = 1; }
+                    break;
+                case 'ArrowLeft':
+                    if (dx !== 1) { dx = -1; dy = 0; }
+                    break;
+                case 'ArrowRight':
+                    if (dx !== -1) { dx = 1; dy = 0; }
+                    break;
+            }
+        });
+        
+        // Initialize game
+        updateTileCount();
+        drawGame();
+    </script>
+</body>
+</html>
