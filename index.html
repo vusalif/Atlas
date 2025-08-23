@@ -784,9 +784,9 @@
             border: 2px solid #010101;
             border-radius: 12px;
             padding: 16px;
-            min-width: 360px;
+            min-width: 420px;
             text-align: justify;
-            max-width: 380px;
+            max-width: 450px;
             box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5);
             z-index: 1002;
             pointer-events: auto;
@@ -839,6 +839,94 @@
             }
         }
         
+        /* World Map Info Button Styling - now inline with title */
+        .map-title {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            justify-content: center;
+        }
+        
+        .world-map-info-button {
+            background: rgba(232, 232, 232, 0.9);
+            color: rgb(56, 55, 55);
+            border: 2px solid rgb(54, 54, 54);
+            border-radius: 50%;
+            width: 28px;
+            height: 28px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: bold;
+            transition: all 0.3s ease;
+            flex-shrink: 0;
+        }
+        
+        .world-map-info-button:hover {
+            background: rgba(232, 232, 232, 0.9);
+            box-shadow: 0 0px 12px rgba(0, 0, 0, 0.229);
+        }
+        
+        .world-map-info-icon {
+            line-height: 1;
+            user-select: none;
+        }
+        
+        .world-map-info-tooltip {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: rgba(0, 0, 0, 0.95);
+            border: 2px solid #010101;
+            border-radius: 12px;
+            padding: 16px;
+            min-width: 420px;
+            text-align: justify;
+            max-width: 450px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5);
+            z-index: 1002;
+            pointer-events: auto;
+            animation: fadeInUp 0.3s ease;
+        }
+        
+        .world-map-info-tooltip-content h4 {
+            color: #cdcdcd;
+            margin: 0 0 12px 0;
+            font-size: 16px;
+            font-weight: 600;
+            text-align: center;
+        }
+        
+        .world-map-info-tooltip-content p {
+            color: #cdcdcd;
+            margin: 0 0 12px 0;
+            font-size: 14px;
+            text-align: left;
+            line-height: 1.4;
+        }
+        
+        .world-map-info-tooltip-content ul {
+            color: #cdcdcd;
+            margin: 0 0 12px 0;
+            padding-left: 20px; 
+            text-align: left;
+            font-size: 13px;
+            line-height: 1.2;
+        }
+        
+        .world-map-info-tooltip-content li {
+            margin-bottom: 12px;
+        }
+        
+        .world-map-info-tooltip-content em {
+            color: #9ca3af;
+            font-style: italic;
+            font-size: 12px;
+        }
+        
         /* Responsive design for info overlay and container */
         @media (max-width: 768px) {
             .atlas-minimap-container {
@@ -864,13 +952,29 @@
             }
             
             .info-tooltip {
-                min-width: 250px;
-                max-width: 280px;
+                min-width: 300px;
+                max-width: 350px;
                 position: fixed;
                 top: 50%;
                 left: 50%;
                 transform: translate(-50%, -50%);
                 right: auto;
+                z-index: 10000;
+            }
+            
+            /* World Map Info Button Mobile Responsive */
+            .map-title {
+                flex-direction: column;
+                gap: 8px;
+            }
+            
+            .world-map-info-tooltip {
+                min-width: 380px;
+                max-width: 420px;
+                position: fixed;
+                top: 50%;
+                left: 50%;
+                transform: translate(-50%, -50%);
                 z-index: 10000;
             }
         }
@@ -1843,29 +1947,29 @@
 
         <!-- Interactive World Map Section -->
         <div class="map-section" style="margin: 3rem auto; max-width: 1200px;">
-            <!-- Info button above the world map -->
-            <div class="world-map-info-overlay">
-                <button class="world-map-info-button" onclick="toggleWorldMapInfoTooltip()" aria-label="Show Wall of Emojis Map information">
-                    <span class="world-map-info-icon">?</span>
-                </button>
-                <div class="world-map-info-tooltip" id="world-map-info-tooltip" style="display: none;">
-                    <div class="world-map-info-tooltip-content">
-                        <h4>Wall of Emojis Map</h4>
-                        <p>This is a free interactive map where everyone can contribute!</p>
-                        <ul>
-                            <li><strong>Customize:</strong> Add emojis and descriptions to any country</li>
-                            <li><strong>Collaborative:</strong> Build a fun, personalized world map together</li>
-                            <li><strong>Learn:</strong> Discover interesting facts about countries from other users</li>
-                            <li><strong>Share:</strong> Your contributions help make the map more engaging</li>
-                        </ul>
-                        <p><em>Click on any country to add your own emoji or description!</em></p>
-                    </div>
-                </div>
-            </div>
-            
             <div class="map-container" style="position: relative; height: 500px; border-radius: 12px; overflow: hidden; border: 1px solid var(--border-color); box-shadow: 0 10px 30px var(--shadow-color);">
                 <div id="world-map" style="width: 100%; height: 100%; background: #000000;">
-                    <div class="map-title">Wall of Emojis Map</div>
+                    <div class="map-title">
+                        Wall of Emojis Map
+                        <button class="world-map-info-button" onclick="toggleWorldMapInfoTooltip()" aria-label="Show Wall of Emojis Map information">
+                            <span class="world-map-info-icon">?</span>
+                        </button>
+                    </div>
+                    
+                    <!-- Tooltip positioned inside the map container -->
+                    <div class="world-map-info-tooltip" id="world-map-info-tooltip" style="display: none;">
+                        <div class="world-map-info-tooltip-content">
+                            <h4>Wall of Emojis Map</h4>
+                            <p>This is a free interactive map where everyone can contribute!</p>
+                            <ul>
+                                <li><strong>Customize:</strong> Add emojis and descriptions to any country</li>
+                                <li><strong>Collaborative:</strong> Build a fun, personalized world map together</li>
+                                <li><strong>Learn:</strong> Discover interesting facts about countries from other users</li>
+                                <li><strong>Share:</strong> Your contributions help make the map more engaging</li>
+                            </ul>
+                            <p><em>Click on any country to add your own emoji or description!</em></p>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
@@ -5253,6 +5357,62 @@
                 document.removeEventListener('click', closeInfoTooltipOnOutsideClick, true);
             }
         }
+        
+        // Toggle world map info tooltip function
+        function toggleWorldMapInfoTooltip() {
+            const tooltip = document.getElementById('world-map-info-tooltip');
+            if (tooltip) {
+                const isVisible = tooltip.style.display !== 'none';
+                tooltip.style.display = isVisible ? 'none' : 'block';
+                
+                // Close tooltip when clicking outside
+                if (!isVisible) {
+                    setTimeout(() => {
+                        document.addEventListener('click', closeWorldMapInfoTooltipOnOutsideClick, true);
+                    }, 100);
+                }
+            }
+        }
+        
+        // Close world map info tooltip when clicking outside
+        function closeWorldMapInfoTooltipOnOutsideClick(event) {
+            const tooltip = document.getElementById('world-map-info-tooltip');
+            const infoButton = document.querySelector('.map-title');
+            const mapContainer = document.querySelector('.map-container');
+            
+            if (tooltip && infoButton && !infoButton.contains(event.target) && !mapContainer.contains(event.target)) {
+                tooltip.style.display = 'none';
+                document.removeEventListener('click', closeWorldMapInfoTooltipOnOutsideClick, true);
+            }
+        }
+        
+        // Global click handler to close tooltips on mobile when clicking anywhere
+        document.addEventListener('click', function(event) {
+            // Check if we're on mobile
+            if (window.innerWidth <= 768) {
+                const atlasTooltip = document.getElementById('info-tooltip');
+                const worldMapTooltip = document.getElementById('world-map-info-tooltip');
+                
+                // Close Atlas tooltip if it's open and click is not on the button
+                if (atlasTooltip && atlasTooltip.style.display !== 'none') {
+                    const atlasButton = document.getElementById('info-overlay');
+                    if (!atlasButton || !atlasButton.contains(event.target)) {
+                        atlasTooltip.style.display = 'none';
+                    }
+                }
+                
+                // Close World Map tooltip if it's open and click is not on the button
+                if (worldMapTooltip && worldMapTooltip.style.display !== 'none') {
+                    const worldMapButton = document.querySelector('.map-title');
+                    const mapContainer = document.querySelector('.map-container');
+                    if (!worldMapButton || !worldMapButton.contains(event.target)) {
+                        if (!mapContainer || !mapContainer.contains(event.target)) {
+                            worldMapTooltip.style.display = 'none';
+                        }
+                    }
+                }
+            }
+        });
 
     </script>
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
