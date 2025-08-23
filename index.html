@@ -723,13 +723,156 @@
             font-weight: 600;
         }
         
+
+        
+        /* Info overlay styling - positioned to the side of the map */
+        .info-overlay {
+            position: relative;
+            top: 10px;
+            z-index: 1001;
+            pointer-events: auto;
+            flex-shrink: 0;
+        }
+        
+        /* Adjust instructions overlay to make room for info button */
         .instructions-overlay {
             position: absolute;
-            top: 10px;
-            right: 15px;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            font-size: 16px;
+            color: #000;
+            font-weight: 700;
+            padding: 12px 16px;
+            border-radius: 8px;
+            z-index: 10000;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .info-button {
+            background: rgba(232, 232, 232, 0.9);
+            color: rgb(56, 55, 55);
+            border: 2px solid rgb(54, 54, 54);
+            border-radius: 50%;
+            width: 32px;
+            height: 32px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            font-size: 18px;
+            font-weight: bold;
+            transition: all 0.3s ease;
+        }
+        
+        .info-button:hover {
+            background: rgba(232, 232, 232, 0.9);
+            box-shadow: 0 0px 12px rgba(0, 0, 0, 0.229);
+        }
+        
+        .info-icon {
+            line-height: 1;
+            user-select: none;
+        }
+        
+        .info-tooltip {
+            position: absolute;
+            top: 45px;
+            right: 0;
+            background: rgba(0, 0, 0, 0.95);
+            border: 2px solid #010101;
+            border-radius: 12px;
+            padding: 16px;
+            min-width: 360px;
+            text-align: justify;
+            max-width: 380px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5);
+            z-index: 1002;
+            pointer-events: auto;
+            animation: fadeInUp 0.3s ease;
+        }
+        
+        .info-tooltip-content h4 {
+            color: #cdcdcd;
+            margin: 0 0 12px 0;
+            font-size: 16px;
+            font-weight: 600;
+            text-align: center;
+        }
+        
+        .info-tooltip-content p {
+            color: #cdcdcd;
+            margin: 0 0 12px 0;
+            font-size: 14px;
+            text-align: left;
+            line-height: 1.4;
+        }
+        
+        .info-tooltip-content ul {
+            color: #cdcdcd;
+            margin: 0 0 12px 0;
+            padding-left: 20px; 
+            text-align: left;
+            font-size: 13px;
+            line-height: 1.2;
+        }
+        
+        .info-tooltip-content li {
+            margin-bottom: 12px;
+        }
+        
+        .info-tooltip-content em {
+            color: #9ca3af;
+            font-style: italic;
             font-size: 12px;
-            color: var(--text-secondary);
-            font-weight: 500;
+        }
+        
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        /* Responsive design for info overlay and container */
+        @media (max-width: 768px) {
+            .atlas-minimap-container {
+                flex-direction: column;
+                align-items: center;
+                gap: 10px;
+                max-width: 100%;
+            }
+            
+            .atlas-minimap {
+                max-width: 100%;
+                height: 250px;
+            }
+            
+            .info-overlay {
+                top: 0;
+            }
+            
+            .info-button {
+                width: 28px;
+                height: 28px;
+                font-size: 16px;
+            }
+            
+            .info-tooltip {
+                min-width: 250px;
+                max-width: 280px;
+                position: fixed;
+                top: 50%;
+                left: 50%;
+                transform: translate(-50%, -50%);
+                right: auto;
+                z-index: 10000;
+            }
         }
         
         .puzzle-selector-connected {
@@ -866,6 +1009,15 @@
             color: white;
         }
         
+        .atlas-minimap-container {
+            display: flex;
+            align-items: flex-start;
+            gap: 15px;
+            justify-content: center;
+            margin: 0 auto;
+            max-width: 650px;
+        }
+        
         .atlas-minimap {
             width: 100%;
             max-width: 600px;
@@ -873,10 +1025,10 @@
             background: var(--bg-accent);
             border: 5px solid var(--border-color);
             border-radius: 8px;
-            margin: 0 auto;
             overflow: hidden;
             position: relative;
             box-shadow: 0 4px 12px var(--shadow-color);
+            flex-shrink: 0;
         }
         
         .map-overlay {
@@ -1501,13 +1653,37 @@
         </h1>
 
         
-        <div class="atlas-minimap" id="atlas-minimap">
-            <div class="map-overlay">
-                <div class="timer-overlay" id="timer-overlay" style="display: none;">
-                    <span id="timer-text">00:00:000</span>
+        <div class="atlas-minimap-container">
+            <div class="atlas-minimap" id="atlas-minimap">
+                <div class="map-overlay">
+                    <div class="timer-overlay" id="timer-overlay" style="display: none;">
+                        <span id="timer-text">00:00:000</span>
+                    </div>
+                    <div class="instructions-overlay" style="display: block !important;">
+                        <span id="direction-text">Click any country to start</span>
+                    </div>
                 </div>
-                <div class="instructions-overlay" style="display: block !important;">
-                    <span id="direction-text">Click any country to start</span>
+            </div>
+            
+            <!-- Info button positioned to the side of the map -->
+            <div class="info-overlay" id="info-overlay">
+                <button class="info-button" onclick="toggleInfoTooltip()" aria-label="Show map information">
+                    <span class="info-icon">?</span>
+                </button>
+                <div class="info-tooltip" id="info-tooltip" style="display: none;">
+                    <div class="info-tooltip-content">
+                        <h4>Atlas Daily Puzzle</h4>
+                        <p>Click on any country to start guessing the daily puzzle country.</p>
+                        <ul>
+                            
+                            <li><strong>Goal:</strong> Find the target country by clicking on it</li>
+                            <li><strong>Colors:</strong> Green = close, Red = far</li>
+                            <li><strong>Leaderboard:</strong> Submit your best times and compete with others</li>
+                            <li><strong>Daily:</strong> New puzzle every 3 days at 8:00 PM</li>
+                            
+                            <p>You can play old puzzles by clicking on the puzzle selector below of the map, also you can learn how many hours left until the next puzzle!</p>
+                        </ul>
+                    </div>
                 </div>
             </div>
         </div>
@@ -1667,13 +1843,30 @@
 
         <!-- Interactive World Map Section -->
         <div class="map-section" style="margin: 3rem auto; max-width: 1200px;">
+            <!-- Info button above the world map -->
+            <div class="world-map-info-overlay">
+                <button class="world-map-info-button" onclick="toggleWorldMapInfoTooltip()" aria-label="Show Wall of Emojis Map information">
+                    <span class="world-map-info-icon">?</span>
+                </button>
+                <div class="world-map-info-tooltip" id="world-map-info-tooltip" style="display: none;">
+                    <div class="world-map-info-tooltip-content">
+                        <h4>Wall of Emojis Map</h4>
+                        <p>This is a free interactive map where everyone can contribute!</p>
+                        <ul>
+                            <li><strong>Customize:</strong> Add emojis and descriptions to any country</li>
+                            <li><strong>Collaborative:</strong> Build a fun, personalized world map together</li>
+                            <li><strong>Learn:</strong> Discover interesting facts about countries from other users</li>
+                            <li><strong>Share:</strong> Your contributions help make the map more engaging</li>
+                        </ul>
+                        <p><em>Click on any country to add your own emoji or description!</em></p>
+                    </div>
+                </div>
+            </div>
+            
             <div class="map-container" style="position: relative; height: 500px; border-radius: 12px; overflow: hidden; border: 1px solid var(--border-color); box-shadow: 0 10px 30px var(--shadow-color);">
                 <div id="world-map" style="width: 100%; height: 100%; background: #000000;">
-            <div class="map-title">Wall of Emojis Map</div>
-        </div>
-                
-
-
+                    <div class="map-title">Wall of Emojis Map</div>
+                </div>
             </div>
         </div>
         
@@ -5033,6 +5226,33 @@
         }
 
         // Reset map view
+
+        // Toggle info tooltip function
+        function toggleInfoTooltip() {
+            const tooltip = document.getElementById('info-tooltip');
+            if (tooltip) {
+                const isVisible = tooltip.style.display !== 'none';
+                tooltip.style.display = isVisible ? 'none' : 'block';
+                
+                // Close tooltip when clicking outside
+                if (!isVisible) {
+                    setTimeout(() => {
+                        document.addEventListener('click', closeInfoTooltipOnOutsideClick, true);
+                    }, 100);
+                }
+            }
+        }
+        
+        // Close info tooltip when clicking outside
+        function closeInfoTooltipOnOutsideClick(event) {
+            const tooltip = document.getElementById('info-tooltip');
+            const infoButton = document.getElementById('info-overlay');
+            
+            if (tooltip && infoButton && !infoButton.contains(event.target)) {
+                tooltip.style.display = 'none';
+                document.removeEventListener('click', closeInfoTooltipOnOutsideClick, true);
+            }
+        }
 
     </script>
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
